@@ -10,6 +10,8 @@
   background-color: green;
   /*  rotate(-45deg) skew(15deg, 15deg) */
   -webkit-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
+  -moz-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
+  transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
   width: 400px;
   height: 400px;
   margin-top: 50px;
@@ -45,11 +47,15 @@
 .monkey.facing-right {
   /* The inverse matrix of the viewport transformation */
   -webkit-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
+  -moz-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
+  transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
 }
 
 .monkey.facing-left {
   /* The inverse matrix of the viewport transformation, reflected over the y axis */
   -webkit-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
+  -moz-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
+  transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
 }
 
 </style>
