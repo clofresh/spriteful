@@ -70,6 +70,27 @@ var game = {
       return $(sel);
     }));        
   };
+  
+  $.fn.initTiles = function(board) {
+    var getRowNum = function(i, tile_width) {
+      return Math.floor(i / tile_width);
+    };
+    var getColNum = function(i, tile_width) {
+      return Math.floor(i % tile_width);
+    }
+    
+    var tiles = _.range(board.tile_count()).map(function(i) {
+      var coordinates = {
+        row: getRowNum(i, board.tile_width), 
+        col: getColNum(i, board.tile_width)
+      };
+      
+      return _.template('<div class="tile grass row-<%= row %> col-<%= col %>" id="cell-<%= row %>-<%= col %>"></div>', coordinates)
+    }).join("");
+    
+    $(this).html(tiles);
+  };
+  
 })(jQuery);
 
 

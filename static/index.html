@@ -8,30 +8,21 @@
 <script src="js/game.js"></script>
 
 <script>
-  $(function() {
-    game.init_clock(200);
-    
-    var tile = {
-      width: 10,
-      height: 10
-    }
-    
-    var board = {
+  var config = {
+    heartbeat_interval: 200,
+    board: {
       tile_width: 40,
       tile_height: 40,
       tile_count: function() { return this.tile_width * this.tile_height }
-    }
+    }    
+  }
+  
+  
+  $(function() {
+    game.init_clock(200);
+    $('#content').initTiles(config.board);
     
-    var tiles = _.range(board.tile_count()).map(function(i) {
-      var coordinates = {
-        row: Math.floor(i / board.tile_width), 
-        col: Math.floor(i % board.tile_width)
-      };
-      
-      return _.template('<div class="tile grass row-<%= row %> col-<%= col %>" id="cell-<%= row %>-<%= col %>"></div>', coordinates)
-    }).join("");
-    
-    $('#content').html(tiles).delegate('.tile', 'click', function() {
+    $('#content').delegate('.tile', 'click', function() {
       $('#player').data('intentions', []);
 
       $this = $(this);
