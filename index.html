@@ -7,7 +7,7 @@
 
 <style>
 #content {
-  background-color: white;
+  background-color: green;
   /*  rotate(-45deg) skew(15deg, 15deg) */
   -webkit-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
   width: 400px;
@@ -19,11 +19,11 @@
 
 .tile {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 10px;
+  height: 10px;
   float: left;
   padding:0px;
-  margin:-1px;
+  margin:0px;
 }
 
 .grass {
@@ -31,10 +31,16 @@
 }
 
 .monkey {
-  background-image: url(monkey.gif);
+  background-image: url(monkey-42-22-4.gif);
+  background-repeat: no-repeat;
   width: 42px;
-  height: 21px;
+  height: 22px;
 }
+
+.monkey.sprite-0 { background-position: 0px 0px }
+.monkey.sprite-1 { background-position: -42px 0px }
+.monkey.sprite-2 { background-position: -84px 0px }
+.monkey.sprite-3 { background-position: -126px 0px }
 
 .monkey.facing-right {
   /* The inverse matrix of the viewport transformation */
@@ -121,16 +127,16 @@
   }
   
   $(function() {
-    init_clock(250);
+    init_clock(200);
     
     var tile = {
-      width: 40,
-      height: 40
+      width: 10,
+      height: 10
     }
     
     var board = {
-      tile_width: 10,
-      tile_height: 10,
+      tile_width: 40,
+      tile_height: 40,
       tile_count: function() { return this.tile_width * this.tile_height }
     }
     
@@ -162,8 +168,18 @@
             $('#player').removeClass('facing-right').addClass('facing-left');
           }
           
+          var new_animation = $('#player').data('animation');
+          $('#player').removeClass([new_animation.sprite, new_animation.num].join('-'));
+          new_animation.num = (new_animation.num + 1) % new_animation.total;
+          
           var player = $('#player').clone();
-          $(player).data('intentions', $('#player').data('intentions'));
+          $(player).data(
+            'intentions', 
+            $('#player').data('intentions')
+          ).data(
+            'animation',
+            new_animation
+          ).addClass([new_animation.sprite, new_animation.num].join('-'));
           $('#player').remove();
           $this.append(player);
         };
@@ -193,7 +209,8 @@
       }
     });
     
-    $('#cell-4-4').html('<div id="player" class="player monkey actor facing-right"></div>').data('row', 4).data('col', 4);
+    $('#cell-4-4').html('<div id="player" class="player monkey actor facing-right sprite-0"></div>').data('row', 4).data('col', 4);
+    $('#player').data('animation', {sprite:'sprite', num: 0, total: 4});
     
     
   })
