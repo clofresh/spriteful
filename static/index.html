@@ -1,0 +1,104 @@
+<html>
+<head>
+<link rel="stylesheet" href="css/game.css" type="text/css" media="screen" /> 
+
+<script src="js/jquery-1.4.2.min.js"></script>
+<script src="js/jquery-ui-1.8.2.custom.mins.js"></script>
+<script src="js/underscore-0.6.0.min.js"></script>
+<script src="js/game.js"></script>
+
+<script>
+  $(function() {
+    init_clock(200);
+    
+    var tile = {
+      width: 10,
+      height: 10
+    }
+    
+    var board = {
+      tile_width: 40,
+      tile_height: 40,
+      tile_count: function() { return this.tile_width * this.tile_height }
+    }
+    
+    var tiles = _.range(board.tile_count()).map(function(i) {
+      var coordinates = {
+        row: Math.floor(i / board.tile_width), 
+        col: Math.floor(i % board.tile_width)
+      };
+      
+      return _.template('<div class="tile grass row-<%= row %> col-<%= col %>" id="cell-<%= row %>-<%= col %>"></div>', coordinates)
+    }).join("");
+    
+    $('#content').html(tiles).delegate('.tile', 'click', function() {
+      $('#player').data('intentions', []);
+
+      $this = $(this);
+      
+      var intentions = _($('#player').parent('.tile').pathTo(this)).map(function(n) {
+        var $this = n;
+        return function() {
+          var row = $this.data('row');
+          var col = $this.data('col');
+          var prev_row = $('#player').parent('.tile').data('row');
+          var prev_col = $('#player').parent('.tile').data('col');
+          
+          if (col > prev_col || row > prev_row) {
+            $('#player').removeClass('facing-left').addClass('facing-right');
+          } else if (col < prev_col || row < prev_row) {
+            $('#player').removeClass('facing-right').addClass('facing-left');
+          }
+          
+          var new_animation = $('#player').data('animation');
+          $('#player').removeClass([new_animation.sprite, new_animation.num].join('-'));
+          new_animation.num = (new_animation.num + 1) % new_animation.total;
+          
+          var player = $('#player').clone();
+          $(player).data(
+            'intentions', 
+            $('#player').data('intentions')
+          ).data(
+            'animation',
+            new_animation
+          ).addClass([new_animation.sprite, new_animation.num].join('-'));
+          $('#player').remove();
+          $this.append(player);
+        };
+      });
+      
+      intentions.reverse();
+      
+      $('#player').data('intentions', intentions);
+    });
+    
+    $('.actor').live('g:heartbeat', function() {
+      var intentions = $(this).data('intentions');
+      
+      if (!_.isEmpty(intentions)) {
+        var next = _(intentions).last();
+        next();
+        _(intentions).pop();
+        $(this).data('intentions', intentions);
+      }
+    });
+    
+    $('.tile').each(function() {
+      var $this = $(this);  
+      if(!$this.data('row')) {
+        var id_parts = $this.attr('id').split('-');
+        $this.data('row', parseInt(id_parts[1])).data('col', parseInt(id_parts[2]));
+      }
+    });
+    
+    $('#cell-4-4').html('<div id="player" class="player monkey actor facing-right sprite-0"></div>').data('row', 4).data('col', 4);
+    $('#player').data('animation', {sprite:'sprite', num: 0, total: 4});
+    
+    
+  })
+</script>
+</head>
+<body>
+  <div id="content"></div>
+</body>
+</html>

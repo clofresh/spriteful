@@ -1,0 +1,51 @@
+#content {
+  background-color: green;
+  /*  rotate(-45deg) skew(15deg, 15deg) */
+  -webkit-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
+  -moz-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
+  transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
+  width: 400px;
+  height: 400px;
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tile {
+  display: block;
+  width: 10px;
+  height: 10px;
+  float: left;
+  padding:0px;
+  margin:0px;
+}
+
+.grass {
+  background-image: url(../img/grass.gif)
+}
+
+.monkey {
+  background-image: url(../img/monkey-42-22-4.gif);
+  background-repeat: no-repeat;
+  width: 42px;
+  height: 22px;
+}
+
+.monkey.sprite-0 { background-position: 0px 0px }
+.monkey.sprite-1 { background-position: -42px 0px }
+.monkey.sprite-2 { background-position: -84px 0px }
+.monkey.sprite-3 { background-position: -126px 0px }
+
+.monkey.facing-right {
+  /* The inverse matrix of the viewport transformation */
+  -webkit-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
+  -moz-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
+  transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
+}
+
+.monkey.facing-left {
+  /* The inverse matrix of the viewport transformation, reflected over the y axis */
+  -webkit-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
+  -moz-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
+  transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
+}
