@@ -22,46 +22,7 @@
     game.init_clock(200);
     $('#content').initTiles(config.board);
     
-    $('#content').delegate('.tile', 'click', function() {
-      $('#player').data('intentions', []);
-
-      $this = $(this);
-      
-      var intentions = _($('#player').parent('.tile').pathTo(this)).map(function(n) {
-        var $this = n;
-        return function() {
-          var row = $this.data('row');
-          var col = $this.data('col');
-          var prev_row = $('#player').parent('.tile').data('row');
-          var prev_col = $('#player').parent('.tile').data('col');
-          
-          if (col > prev_col || row > prev_row) {
-            $('#player').removeClass('facing-left').addClass('facing-right');
-          } else if (col < prev_col || row < prev_row) {
-            $('#player').removeClass('facing-right').addClass('facing-left');
-          }
-          
-          var new_animation = $('#player').data('animation');
-          $('#player').removeClass([new_animation.sprite, new_animation.num].join('-'));
-          new_animation.num = (new_animation.num + 1) % new_animation.total;
-          
-          var player = $('#player').clone();
-          $(player).data(
-            'intentions', 
-            $('#player').data('intentions')
-          ).data(
-            'animation',
-            new_animation
-          ).addClass([new_animation.sprite, new_animation.num].join('-'));
-          $('#player').remove();
-          $this.append(player);
-        };
-      });
-      
-      intentions.reverse();
-      
-      $('#player').data('intentions', intentions);
-    });
+    $('#content').delegate('.tile', 'click', game.update_player_intentions);
     
     $('.actor').live('g:heartbeat', function() {
       var intentions = $(this).data('intentions');

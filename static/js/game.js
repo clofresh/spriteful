@@ -45,7 +45,63 @@ var game = {
     };
   
     window.setTimeout(heartbeat, beat_interval);
-  }  
+  },
+  
+  update_player_intentions: function() {
+    $('#player').data('intentions', []);
+
+    $this = $(this);
+    
+    var intentions = _($('#player').parent('.tile').pathTo(this)).map(function(n) {
+      var $this = n;
+      var adjust_facing = function() {
+        var row = $this.data('row');
+        var col = $this.data('col');
+        var prev_row = $('#player').parent('.tile').data('row');
+        var prev_col = $('#player').parent('.tile').data('col');
+        
+        if (col > prev_col || row > prev_row) {
+          $('#player').removeClass('facing-left').addClass('facing-right');
+        } else if (col < prev_col || row < prev_row) {
+          $('#player').removeClass('facing-right').addClass('facing-left');
+        }
+      }
+      
+      var update_animation = function() {
+        var old_animation = $('#player').data('animation')
+        var old_class = [old_animation.sprite, old_animation.num].join('-');
+
+        var new_animation = old_animation;
+        new_animation.num = (new_animation.num + 1) % new_animation.total;
+        var new_class = [new_animation.sprite, new_animation.num].join('-');
+        
+        $('#player').removeClass(old_class).addClass(new_class).data('animation', new_animation);
+      }
+      
+      var move_player = function() {
+        var player = $('#player').clone();
+        $(player).data(
+          'intentions', 
+          $('#player').data('intentions')
+        ).data(
+          'animation',
+          $('#player').data('animation')
+        );
+        $('#player').remove();
+        $this.append(player);
+      }
+      
+      return function() { 
+        adjust_facing();
+        update_animation();
+        move_player();
+      };
+    });
+    
+    intentions.reverse();
+    
+    $('#player').data('intentions', intentions);
+  }
 };
 
 
