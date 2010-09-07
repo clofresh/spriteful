@@ -39,61 +39,29 @@ var game = {
       return game.find_path(next, end, new_path);
     }
   },
+  
+  move_action: function(ref, node) {
+    var $this = $(ref);
+    console.log(_.template('<%= id %> is moving to [<%= row %>, <%= col %>]', {
+      id: $this.selector,
+      row: node.data('row'),
+      col: node.data('col')
+    }));
+    $this.orientTowards(node).advanceAnimation();
 
-  update_player_intentions: function(tile_class, player_id) {
-    $('#' + player_id).data('intentions', []);
+    var cloned = $this.clone();
 
-    $this = $(this);
-    
-    var intentions = _($('#' + player_id).parent('.' + tile_class).pathTo(this)).map(function(n) {
-      var $this = n;
-      var adjust_facing = function() {
-        var row = $this.data('row');
-        var col = $this.data('col');
-        var prev_row = $('#' + player_id).parent('.' + tile_class).data('row');
-        var prev_col = $('#' + player_id).parent('.' + tile_class).data('col');
-        
-        if (col > prev_col || row > prev_row) {
-          $('#' + player_id).removeClass('facing-left').addClass('facing-right');
-        } else if (col < prev_col || row < prev_row) {
-          $('#' + player_id).removeClass('facing-right').addClass('facing-left');
-        }
-      }
-      
-      var update_animation = function() {
-        var old_animation = $('#' + player_id).data('animation')
-        var old_class = [old_animation.sprite, old_animation.num].join('-');
-
-        var new_animation = old_animation;
-        new_animation.num = (new_animation.num + 1) % new_animation.total;
-        var new_class = [new_animation.sprite, new_animation.num].join('-');
-        
-        $('#' + player_id).removeClass(old_class).addClass(new_class).data('animation', new_animation);
-      }
-      
-      var move_player = function() {
-        var player = $('#' + player_id).clone();
-        $(player).data(
-          'intentions', 
-          $('#' + player_id).data('intentions')
-        ).data(
-          'animation',
-          $('#' + player_id).data('animation')
-        );
-        $('#' + player_id).remove();
-        $this.append(player);
-      }
-      
-      return function() { 
-        adjust_facing();
-        update_animation();
-        move_player();
-      };
+    _($this.data()).each(function(val, key) {
+      $(cloned).data(key, val);
     });
     
-    intentions.reverse();
+    $(cloned)
+      .data('row',        node.data('row'))
+      .data('col',        node.data('col'));
+    $this.remove();
     
-    $('#' + player_id).data('intentions', intentions);
+    $(node).append(cloned);
+    
   }
 };
 
@@ -132,7 +100,6 @@ var game = {
     var intentions = _($this.pathTo(end_selector)).map(function(node) {
       return function() { move_func($($this.selector), node) };
     });
-    intentions.reverse();
     $this.data('intentions', intentions);
     
     return $this;
@@ -216,8 +183,8 @@ var game = {
       var intentions = $(this).data('intentions');
     
       if (!_.isEmpty(intentions)) {
-        var next = _(intentions).last();
-        $(this).data('intentions', _(intentions).slice(0, intentions.length - 1));
+        var next = _(intentions).first();
+        $(this).data('intentions', _(intentions).slice(1, intentions.length));
         console.log('#' + $(this).attr('id') + ' has ' + intentions.length + ' intentions left');
         next();
       }

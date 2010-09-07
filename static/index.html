@@ -29,43 +29,25 @@
     
     $('.' + config.tile_class).addClass('grass');
     $('#content').delegate('.' + config.tile_class, 'click', function() {
-      // This is bind in the Underscore.js/Prototype sense of the method
-      // where it applies the 2nd argument to the 1st arguments "this" scope,
-      // not assigning event handlers in jQuery sense.  
-      _.bind(game.update_player_intentions, this)(config.tile_class, config.player_id);
+      $('#' + config.player_id).moveTo($(this));
     });
     
-    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey ' + config.actor_class + ' facing-right sprite sprite-0"></div>').data('row', 4).data('col', 4);
-    $('#' + config.player_id).data('animation', {sprite:'sprite', num: 0, total: 4});
-    
+    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey ' + config.actor_class + ' facing-right sprite sprite-0"></div>');
     $('#cell-30-30').html('<div id="large-monkey-0" class="large-monkey actor sprite facing-left sprite-0"></div>');
+    
+    $('#' + config.player_id)
+      .data('animation', {sprite:'sprite', num: 0, total: 4})
+      .data('row', 4)
+      .data('col', 4)
+      .data('move_func', game.move_action);
+    
+    
     $('#large-monkey-0')
       .data('animation', {sprite:'sprite', num: 0, total: 4})
       .data('row', 30)
       .data('col', 30)
-      .data('move_func', function(ref, node) {
-        var $this = $(ref);
-        console.log(_.template('<%= id %> is moving to [<%= row %>, <%= col %>]', {
-          id: $this.selector,
-          row: node.data('row'),
-          col: node.data('col')
-        }));
-        $this.orientTowards(node).advanceAnimation();
-
-        var cloned = $this.clone();
-
-        _($this.data()).each(function(val, key) {
-          $(cloned).data(key, val);
-        });
-        
-        $(cloned)
-          .data('row',        node.data('row'))
-          .data('col',        node.data('col'));
-        $this.remove();
-        
-        $(node).append(cloned);
-        
-      }).moveTo('#cell-4-4');
+      .data('move_func', game.move_action)
+      .moveTo('#cell-4-4');
 
     
   })
