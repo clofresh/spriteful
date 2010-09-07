@@ -70,7 +70,7 @@ var game = {
   $.fn.game = function(config) {
     $(this).data('config', config)
            .addClass('_controller')
-           .initTiles(config.tile_class, config.board)
+           .initTiles(config)
            .initClock('.' + config.actor_class, config.heartbeat_interval);
   };
   
@@ -168,7 +168,11 @@ var game = {
     $this.removeClass(old_class).addClass(new_class).data('animation', new_animation);
   }
   
-  $.fn.initTiles = function(tile_class, board) {
+  $.fn.initTiles = function(config) {
+    var tile_class = config.tile_class;
+    var sprite_class = config.sprite_class;
+    var board = config.board;
+    
     var getRowNum = function(i, total_cols) {
       return Math.floor(i / total_cols);
     };
@@ -178,13 +182,46 @@ var game = {
     
     var tile_count = board.rows * board.cols;
     
-    $(_.template("<style><%= board_selector %> { width: <%= board_width %>px; height: <%= board_height %>px } .<%= tile_class %> { width: <%= tile_width %>px; height: <%= tile_height %>px } </style>", {
+    $(_.template(
+      ["<style>",
+       "<%= board_selector %> { ",
+       "  width: <%= board_width %>px;",
+       "  height: <%= board_height %>px;",
+       /*  rotate(-45deg) skew(15deg, 15deg) */
+       "  -webkit-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0);", 
+       "  -moz-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0);",
+       "  transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0);", 
+       "  margin-left: auto;",
+       "  margin-right: auto;",
+       "}",
+       ".<%= tile_class %> {",
+       "  width: <%= tile_width %>px;",
+       "  height: <%= tile_height %>px;",
+       "  display: block;",
+       "  float: left;",
+       "  padding:0px;",
+       "  margin:0px;",
+       "}",
+       ".<%= sprite_class %>.facing-right {",
+       /* The inverse matrix of the viewport transformation */
+       "  -webkit-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);",
+       "  -moz-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);",  
+       "  transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);" ,
+       "}",
+       ".<%= sprite_class %>.facing-left {",
+       /* The inverse matrix of the viewport transformation, reflected over the y axis */
+       "  -webkit-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);",  
+       "  -moz-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);",  
+       "  transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);",  
+       "}",
+       "</style>"].join("\n"), {
       board_selector: $(this).selector,
       board_width: board.tile_width * board.cols,
       board_height: board.tile_height * board.rows,
       tile_class: tile_class,
       tile_width: board.tile_width,
-      tile_height: board.tile_height
+      tile_height: board.tile_height,
+      sprite_class: sprite_class
     })).appendTo('head');
     
     var tiles = _.range(tile_count).map(function(i) {

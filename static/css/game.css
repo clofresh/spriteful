@@ -1,19 +1,6 @@
 #content {
   background-color: green;
-  /*  rotate(-45deg) skew(15deg, 15deg) */
-  -webkit-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
-  -moz-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
-  transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
   margin-top: 50px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.tile {
-  display: block;
-  float: left;
-  padding:0px;
-  margin:0px;
 }
 
 .grass {
@@ -44,17 +31,4 @@
 .large-monkey.sprite-2 { background-position: -104px 0px }
 .large-monkey.sprite-3 { background-position: -156px 0px }
 
-.sprite.facing-right {
-  /* The inverse matrix of the viewport transformation */
-  -webkit-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
-  -moz-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
-  transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
-}
-
-.sprite.facing-left {
-  /* The inverse matrix of the viewport transformation, reflected over the y axis */
-  -webkit-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
-  -moz-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
-  transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
-}
 
