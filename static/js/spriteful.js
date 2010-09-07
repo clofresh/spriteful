@@ -261,8 +261,10 @@ var spriteful = {
       if (!_.isEmpty(intentions)) {
         var next = _(intentions).first();
         $(this).data('intentions', _(intentions).slice(1, intentions.length));
-        console.log('#' + $(this).attr('id') + ' has ' + intentions.length + ' intentions left');
+        console.log('#' + $(this).attr('id') + ' has ' + (intentions.length - 1) + ' intentions left');
         next();
+      } else {
+        $(this).trigger('g:idle');
       }
     });
 

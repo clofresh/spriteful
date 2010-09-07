@@ -47,7 +47,19 @@
       {sprite:'sprite', num: 0, total: 4}
     );
     
-    $("#large-monkey-0").moveTo("#cell-4-4");
+    $("#large-monkey-0").live('g:idle', function() {
+      if (Math.random() * 10 > 9) {
+        var dest = _.template("#cell-<%= x %>-<%= y %>", {
+          x: Math.round(Math.random() * 100) % config.board.rows,
+          y: Math.round(Math.random() * 100) % config.board.cols
+        });
+      
+        // Something weird with the garbage collection won't let me use $(this)
+        $('#large-monkey-0').moveTo(dest);
+      } else {
+        console.log('#large-monkey-0 is staying put');
+      }
+    });
     
   })
 </script>
