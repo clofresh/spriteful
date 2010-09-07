@@ -68,14 +68,21 @@ var game = {
 
 (function($) {
   $.fn.game = function(config) {
-    $(this).initTiles(config.tile_class, config.board)
+    $(this).data('config', config)
+           .addClass('_controller')
+           .initTiles(config.tile_class, config.board)
            .initClock('.' + config.actor_class, config.heartbeat_interval);
   };
   
+  $.fn.gameConfig = function() {
+    return $(this).parents('._controller').data('config');
+  }
+  
   $.fn.placeSprite = function(id, classes, sprite_options) {
     var $this = $(this);
-    classes.push('actor');
-    classes.push('sprite');
+    var config = $this.gameConfig();
+    classes.push(config.actor_class);
+    classes.push(config.sprite_class);
     classes.push(sprite_options.sprite + '-0');
     
     var sprite_html = _.template('<div id="<%= id %>" class="<%= classes %>"></div>', {
@@ -109,9 +116,11 @@ var game = {
     }
   
     var path = game.find_path(start, end, []);
+    var config = $this.gameConfig();
     
     return $(_(path).map(function(o) {
-      var sel = _.template('.tile.row-<%= row %>.col-<%= col %>', o);
+      o._tile_class = config.tile_class;
+      var sel = _.template('.<%= _tile_class %>.row-<%= row %>.col-<%= col %>', o);
       return $(sel);
     }));        
   };
@@ -195,7 +204,6 @@ var game = {
   $.fn.initClock = function(actor_selector, beat_interval) {
     var $this = $(this);
     var heartbeat = function() {
-      $this.find('.to-remove').remove();
       $this.find(actor_selector).trigger('g:heartbeat');
       window.setTimeout(heartbeat, beat_interval);
     };
