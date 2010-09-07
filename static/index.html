@@ -29,7 +29,7 @@
       // not assigning event handlers in jQuery sense.  
       _.bind(game.update_player_intentions, this)(config.tile_class, config.player_id);
     });
-    game.init_clock(200);
+    $('#content').initClock('.actor', 200);
     
     $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey actor facing-right sprite-0"></div>').data('row', 4).data('col', 4);
     $('#' + config.player_id).data('animation', {sprite:'sprite', num: 0, total: 4});

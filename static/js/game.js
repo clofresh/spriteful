@@ -38,16 +38,6 @@ var game = {
     }
   },
 
-  init_clock: function(beat_interval) {
-    var heartbeat = function() {
-      $('.actor').trigger('g:heartbeat');
-      window.setTimeout(heartbeat, beat_interval);
-    };
-  
-    window.setTimeout(heartbeat, beat_interval);
-    $('.actor').initHeartbeat();
-  },
-  
   update_player_intentions: function(tile_class, player_id) {
     $('#' + player_id).data('intentions', []);
 
@@ -158,11 +148,18 @@ var game = {
     
 
   };
+
+  $.fn.initClock = function(actor_selector, beat_interval) {
+    var $this = $(this);
+    var heartbeat = function() {
+      $this.find(actor_selector).trigger('g:heartbeat');
+      window.setTimeout(heartbeat, beat_interval);
+    };
   
-  $.fn.initHeartbeat = function() {
-    $(this).live('g:heartbeat', function() {
+    window.setTimeout(heartbeat, beat_interval);
+    $this.find(actor_selector).live('g:heartbeat', function() {
       var intentions = $(this).data('intentions');
-      
+    
       if (!_.isEmpty(intentions)) {
         var next = _(intentions).last();
         next();
@@ -170,7 +167,8 @@ var game = {
         $(this).data('intentions', intentions);
       }
     });
-  }
+  };
+  
 })(jQuery);
 
 
