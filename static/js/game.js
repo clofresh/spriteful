@@ -2,12 +2,14 @@ var game = {
   find_path: function(start, end, path) {
     // Eventually implement this as A*
 
+    /*
     console.log(_.template('Finding path from (<%= start.row %>, <%= start.col %>) to (<%= end.row %>,<%= end.col %>)', 
       {
         start: start,
         end: end
       }
     ));
+    */
   
     var equals = function(a, b) { return (a.row == b.row && a.col == b.col) };
     var new_path = path;
@@ -103,11 +105,12 @@ var game = {
   };
   
   $.fn.pathTo = function(end_selector) {
-    $dest = $(end_selector);
+    var $this = $(this);
+    var $dest = $(end_selector);
     
     var start = {
-      row: this.data('row'),
-      col: this.data('col'),
+      row: $this.data('row'),
+      col: $this.data('col'),
     };
     
     var end = {
@@ -122,6 +125,50 @@ var game = {
       return $(sel);
     }));        
   };
+  
+  $.fn.moveTo = function(end_selector) {
+    var $this = $(this);
+    var move_func = $this.data('move_func');
+    var intentions = _($this.pathTo(end_selector)).map(function(node) {
+      return function() { move_func($($this.selector), node) };
+    });
+    intentions.reverse();
+    $this.data('intentions', intentions);
+    
+    return $this;
+  };
+  
+  $.fn.orientTowards = function(target_selector) {
+    var $this = $(this);
+    var $target = $(target_selector);
+    
+    var prev = {
+      row: $this.data('row'),
+      col: $this.data('col')
+    }
+    var row = $target.data('row');
+    var col = $target.data('col');
+                    
+    if (col > prev.col || row > prev.row) {
+      $this.removeClass('facing-left').addClass('facing-right');
+    } else if (col < prev.col || row < prev.row) {
+      $this.removeClass('facing-right').addClass('facing-left');
+    }
+    
+    return $this;
+  },
+  
+  $.fn.advanceAnimation = function() {
+    var $this = $(this);
+    var old_animation = $this.data('animation');
+    var old_class = [old_animation.sprite, old_animation.num].join('-');
+
+    var new_animation = old_animation;
+    new_animation.num = (new_animation.num + 1) % new_animation.total;
+    var new_class = [new_animation.sprite, new_animation.num].join('-');
+    
+    $this.removeClass(old_class).addClass(new_class).data('animation', new_animation);
+  }
   
   $.fn.initTiles = function(tile_class, board) {
     var getRowNum = function(i, tile_width) {
@@ -159,6 +206,7 @@ var game = {
   $.fn.initClock = function(actor_selector, beat_interval) {
     var $this = $(this);
     var heartbeat = function() {
+      $this.find('.to-remove').remove();
       $this.find(actor_selector).trigger('g:heartbeat');
       window.setTimeout(heartbeat, beat_interval);
     };
@@ -169,9 +217,9 @@ var game = {
     
       if (!_.isEmpty(intentions)) {
         var next = _(intentions).last();
+        $(this).data('intentions', _(intentions).slice(0, intentions.length - 1));
+        console.log('#' + $(this).attr('id') + ' has ' + intentions.length + ' intentions left');
         next();
-        _(intentions).pop();
-        $(this).data('intentions', intentions);
       }
     });
 

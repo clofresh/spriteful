@@ -19,6 +19,7 @@
     actor_class: 'actor'
   }
   
+
   
   $(function() {
     // Load generic game engine
@@ -34,9 +35,38 @@
       _.bind(game.update_player_intentions, this)(config.tile_class, config.player_id);
     });
     
-    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey ' + config.actor_class + ' facing-right sprite-0"></div>').data('row', 4).data('col', 4);
+    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey ' + config.actor_class + ' facing-right sprite sprite-0"></div>').data('row', 4).data('col', 4);
     $('#' + config.player_id).data('animation', {sprite:'sprite', num: 0, total: 4});
     
+    $('#cell-30-30').html('<div id="large-monkey-0" class="large-monkey actor sprite facing-left sprite-0"></div>');
+    $('#large-monkey-0')
+      .data('animation', {sprite:'sprite', num: 0, total: 4})
+      .data('row', 30)
+      .data('col', 30)
+      .data('move_func', function(ref, node) {
+        var $this = $(ref);
+        console.log(_.template('<%= id %> is moving to [<%= row %>, <%= col %>]', {
+          id: $this.selector,
+          row: node.data('row'),
+          col: node.data('col')
+        }));
+        $this.orientTowards(node).advanceAnimation();
+
+        var cloned = $this.clone();
+
+        _($this.data()).each(function(val, key) {
+          $(cloned).data(key, val);
+        });
+        
+        $(cloned)
+          .data('row',        node.data('row'))
+          .data('col',        node.data('col'));
+        $this.remove();
+        
+        $(node).append(cloned);
+        
+      }).moveTo('#cell-4-4');
+
     
   })
 </script>

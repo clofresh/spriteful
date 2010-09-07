@@ -36,16 +36,29 @@
 .monkey.sprite-2 { background-position: -84px 0px }
 .monkey.sprite-3 { background-position: -126px 0px }
 
-.monkey.facing-right {
+.large-monkey {
+  background-image: url(../img/large-monkey-52-28-4.gif);
+  background-repeat: no-repeat;
+  width: 52px;
+  height: 28px;
+}
+
+.large-monkey.sprite-0 { background-position: 0px 0px }
+.large-monkey.sprite-1 { background-position: -52px 0px }
+.large-monkey.sprite-2 { background-position: -104px 0px }
+.large-monkey.sprite-3 { background-position: -156px 0px }
+
+.sprite.facing-right {
   /* The inverse matrix of the viewport transformation */
   -webkit-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
   -moz-transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
   transform: matrix(0.52, 0.57, -0.90, 0.95, 0, 0);  
 }
 
-.monkey.facing-left {
+.sprite.facing-left {
   /* The inverse matrix of the viewport transformation, reflected over the y axis */
   -webkit-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
   -moz-transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
   transform: matrix(-0.52, -0.57, -0.90, 0.95, 0, 0);  
 }
+
