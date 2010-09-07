@@ -45,6 +45,7 @@ var game = {
     };
   
     window.setTimeout(heartbeat, beat_interval);
+    $('.actor').initHeartbeat();
   },
   
   update_player_intentions: function() {
@@ -127,7 +128,7 @@ var game = {
     }));        
   };
   
-  $.fn.initTiles = function(board) {
+  $.fn.initTiles = function(tile_class, board) {
     var getRowNum = function(i, tile_width) {
       return Math.floor(i / tile_width);
     };
@@ -138,15 +139,38 @@ var game = {
     var tiles = _.range(board.tile_count()).map(function(i) {
       var coordinates = {
         row: getRowNum(i, board.tile_width), 
-        col: getColNum(i, board.tile_width)
+        col: getColNum(i, board.tile_width),
+        tile_class: tile_class
       };
       
-      return _.template('<div class="tile grass row-<%= row %> col-<%= col %>" id="cell-<%= row %>-<%= col %>"></div>', coordinates)
+      return _.template('<div class="<%= tile_class %> grass row-<%= row %> col-<%= col %>" id="cell-<%= row %>-<%= col %>"></div>', coordinates)
     }).join("");
     
     $(this).html(tiles);
+
+    $('.' + tile_class).each(function() {
+      var $this = $(this);  
+      if(!$this.data('row')) {
+        var id_parts = $this.attr('id').split('-');
+        $this.data('row', parseInt(id_parts[1])).data('col', parseInt(id_parts[2]));
+      }
+    });
+    
+
   };
   
+  $.fn.initHeartbeat = function() {
+    $(this).live('g:heartbeat', function() {
+      var intentions = $(this).data('intentions');
+      
+      if (!_.isEmpty(intentions)) {
+        var next = _(intentions).last();
+        next();
+        _(intentions).pop();
+        $(this).data('intentions', intentions);
+      }
+    });
+  }
 })(jQuery);
 
 

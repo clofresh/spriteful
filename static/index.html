@@ -14,34 +14,16 @@
       tile_width: 40,
       tile_height: 40,
       tile_count: function() { return this.tile_width * this.tile_height }
-    }    
+    },
+    tile_class: 'tile' 
   }
   
   
   $(function() {
+    $('#content').initTiles(config.tile_class, config.board);
+    $('.' + config.tile_class).addClass('grass');
+    $('#content').delegate('.' + config.tile_class, 'click', game.update_player_intentions);
     game.init_clock(200);
-    $('#content').initTiles(config.board);
-    
-    $('#content').delegate('.tile', 'click', game.update_player_intentions);
-    
-    $('.actor').live('g:heartbeat', function() {
-      var intentions = $(this).data('intentions');
-      
-      if (!_.isEmpty(intentions)) {
-        var next = _(intentions).last();
-        next();
-        _(intentions).pop();
-        $(this).data('intentions', intentions);
-      }
-    });
-    
-    $('.tile').each(function() {
-      var $this = $(this);  
-      if(!$this.data('row')) {
-        var id_parts = $this.attr('id').split('-');
-        $this.data('row', parseInt(id_parts[1])).data('col', parseInt(id_parts[2]));
-      }
-    });
     
     $('#cell-4-4').html('<div id="player" class="player monkey actor facing-right sprite-0"></div>').data('row', 4).data('col', 4);
     $('#player').data('animation', {sprite:'sprite', num: 0, total: 4});
