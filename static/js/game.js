@@ -72,6 +72,20 @@ var game = {
            .initClock('.' + config.actor_class, config.heartbeat_interval);
   };
   
+  $.fn.place = function(id, sprite_html, sprite_options) {
+    var $this = $(this);
+    var el = $(sprite_html).attr("id", id);
+
+    $this.append(el);
+    $('#' + id)
+      .data('animation', sprite_options)
+      .data('row', $this.data('row'))
+      .data('col', $this.data('col'))
+      .data('move_func', game.move_action);
+      
+    return $this;
+  }
+  
   $.fn.pathTo = function(end_selector) {
     var $this = $(this);
     var $dest = $(end_selector);

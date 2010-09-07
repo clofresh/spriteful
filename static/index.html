@@ -32,23 +32,10 @@
       $('#' + config.player_id).moveTo($(this));
     });
     
-    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey ' + config.actor_class + ' facing-right sprite sprite-0"></div>');
-    $('#cell-30-30').html('<div id="large-monkey-0" class="large-monkey actor sprite facing-left sprite-0"></div>');
+    $('#cell-4-4').place(config.player_id, '<div class="player monkey ' + config.actor_class + ' facing-right sprite sprite-0"></div>', {sprite:'sprite', num: 0, total: 4});
+    $('#cell-30-30').place("large-monkey-0", '<div class="large-monkey actor sprite facing-left sprite-0"></div>', {sprite:'sprite', num: 0, total: 4});
     
-    $('#' + config.player_id)
-      .data('animation', {sprite:'sprite', num: 0, total: 4})
-      .data('row', 4)
-      .data('col', 4)
-      .data('move_func', game.move_action);
-    
-    
-    $('#large-monkey-0')
-      .data('animation', {sprite:'sprite', num: 0, total: 4})
-      .data('row', 30)
-      .data('col', 30)
-      .data('move_func', game.move_action)
-      .moveTo('#cell-4-4');
-
+    $("#large-monkey-0").moveTo("#cell-4-4");
     
   })
 </script>
