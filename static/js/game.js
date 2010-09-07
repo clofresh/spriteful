@@ -72,9 +72,17 @@ var game = {
            .initClock('.' + config.actor_class, config.heartbeat_interval);
   };
   
-  $.fn.place = function(id, sprite_html, sprite_options) {
+  $.fn.placeSprite = function(id, classes, sprite_options) {
     var $this = $(this);
-    var el = $(sprite_html).attr("id", id);
+    classes.push('actor');
+    classes.push('sprite');
+    classes.push(sprite_options.sprite + '-0');
+    
+    var sprite_html = _.template('<div id="<%= id %>" class="<%= classes %>"></div>', {
+      id: id,
+      classes: classes.join(" ")
+    });
+    var el = $(sprite_html);
 
     $this.append(el);
     $('#' + id)

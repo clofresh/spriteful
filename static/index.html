@@ -32,8 +32,17 @@
       $('#' + config.player_id).moveTo($(this));
     });
     
-    $('#cell-4-4').place(config.player_id, '<div class="player monkey ' + config.actor_class + ' facing-right sprite sprite-0"></div>', {sprite:'sprite', num: 0, total: 4});
-    $('#cell-30-30').place("large-monkey-0", '<div class="large-monkey actor sprite facing-left sprite-0"></div>', {sprite:'sprite', num: 0, total: 4});
+    $('#cell-4-4').placeSprite(
+      config.player_id, 
+      ['player', 'monkey', 'facing-right'], 
+      {sprite:'sprite', num: 0, total: 4}
+    );
+    
+    $('#cell-30-30').placeSprite(
+      "large-monkey-0", 
+      ['large-monkey', 'facing-left'], 
+      {sprite:'sprite', num: 0, total: 4}
+    );
     
     $("#large-monkey-0").moveTo("#cell-4-4");
     
