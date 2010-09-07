@@ -169,19 +169,28 @@ var game = {
   }
   
   $.fn.initTiles = function(tile_class, board) {
-    var getRowNum = function(i, tile_width) {
-      return Math.floor(i / tile_width);
+    var getRowNum = function(i, total_cols) {
+      return Math.floor(i / total_cols);
     };
-    var getColNum = function(i, tile_width) {
-      return Math.floor(i % tile_width);
+    var getColNum = function(i, total_cols) {
+      return Math.floor(i % total_cols);
     }
     
-    var tile_count = board.tile_width * board.tile_height;
+    var tile_count = board.rows * board.cols;
+    
+    $(_.template("<style><%= board_selector %> { width: <%= board_width %>px; height: <%= board_height %>px } .<%= tile_class %> { width: <%= tile_width %>px; height: <%= tile_height %>px } </style>", {
+      board_selector: $(this).selector,
+      board_width: board.tile_width * board.cols,
+      board_height: board.tile_height * board.rows,
+      tile_class: tile_class,
+      tile_width: board.tile_width,
+      tile_height: board.tile_height
+    })).appendTo('head');
     
     var tiles = _.range(tile_count).map(function(i) {
       var coordinates = {
-        row: getRowNum(i, board.tile_width), 
-        col: getColNum(i, board.tile_width),
+        row: getRowNum(i, board.cols), 
+        col: getColNum(i, board.cols),
         tile_class: tile_class
       };
       

@@ -4,8 +4,6 @@
   -webkit-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
   -moz-transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
   transform: matrix(0.95, -0.57, 0.90, 0.52, 0, 0); 
-  width: 400px;
-  height: 400px;
   margin-top: 50px;
   margin-left: auto;
   margin-right: auto;
@@ -13,8 +11,6 @@
 
 .tile {
   display: block;
-  width: 10px;
-  height: 10px;
   float: left;
   padding:0px;
   margin:0px;
