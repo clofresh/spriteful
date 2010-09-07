@@ -41,13 +41,20 @@
       {sprite:'sprite', num: 0, total: 4}
     );
     
-    $('#cell-30-30').placeSprite(
-      "large-monkey-0", 
-      ['large-monkey', 'facing-left'], 
-      {sprite:'sprite', num: 0, total: 4}
-    );
+    _(_.range(10)).each(function(i) {
+      var dest = _.template("#cell-<%= x %>-<%= y %>", {
+        x: Math.round(Math.random() * 100) % config.board.rows,
+        y: Math.round(Math.random() * 100) % config.board.cols
+      });
+      
+      $(dest).placeSprite(
+        "large-monkey-" + i, 
+        ['large-monkey', 'facing-left'], 
+        {sprite:'sprite', num: 0, total: 4}
+      );
+    })
     
-    $("#large-monkey-0").live('g:idle', function() {
+    $(".large-monkey").live('g:idle', function() {
       if (Math.random() * 10 > 9) {
         var dest = _.template("#cell-<%= x %>-<%= y %>", {
           x: Math.round(Math.random() * 100) % config.board.rows,
@@ -55,7 +62,7 @@
         });
       
         // Something weird with the garbage collection won't let me use $(this)
-        $('#large-monkey-0').moveTo(dest);
+        $(this).moveTo(dest);
       } else {
         console.log('#large-monkey-0 is staying put');
       }

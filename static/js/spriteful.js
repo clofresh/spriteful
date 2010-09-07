@@ -49,16 +49,11 @@ var spriteful = {
     }));
     $this.orientTowards(node).advanceAnimation();
 
-    var cloned = $this.clone();
+    var cloned = $this.detach();
 
-    _($this.data()).each(function(val, key) {
-      $(cloned).data(key, val);
-    });
-    
     $(cloned)
       .data('row',        node.data('row'))
       .data('col',        node.data('col'));
-    $this.remove();
     
     $(node).append(cloned);
     
@@ -126,14 +121,14 @@ var spriteful = {
   };
   
   $.fn.moveTo = function(end_selector) {
-    var $this = $(this);
-    var move_func = $this.data('move_func');
-    var intentions = _($this.pathTo(end_selector)).map(function(node) {
-      return function() { move_func($($this.selector), node) };
-    });
-    $this.data('intentions', intentions);
-    
-    return $this;
+    return $(this).each(function() {
+      var $this = $(this);
+      var move_func = $this.data('move_func');
+      var intentions = _($this.pathTo(end_selector)).map(function(node) {
+        return function() { move_func($this, node) };
+      });
+      $this.data('intentions', intentions);
+    })
   };
   
   $.fn.orientTowards = function(target_selector) {
