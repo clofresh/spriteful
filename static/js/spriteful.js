@@ -1,4 +1,4 @@
-var game = {
+var spriteful = {
   find_path: function(start, end, path) {
     // Eventually implement this as A*
 
@@ -36,7 +36,7 @@ var game = {
     
       new_path.push(start);
     
-      return game.find_path(next, end, new_path);
+      return spriteful.find_path(next, end, new_path);
     }
   },
   
@@ -67,20 +67,20 @@ var game = {
 
 
 (function($) {
-  $.fn.game = function(config) {
+  $.fn.spriteful = function(config) {
     $(this).data('config', config)
            .addClass('_controller')
            .initTiles(config)
            .initClock('.' + config.actor_class, config.heartbeat_interval);
   };
   
-  $.fn.gameConfig = function() {
+  $.fn.spritefulConfig = function() {
     return $(this).parents('._controller').data('config');
   }
   
   $.fn.placeSprite = function(id, classes, sprite_options) {
     var $this = $(this);
-    var config = $this.gameConfig();
+    var config = $this.spritefulConfig();
     classes.push(config.actor_class);
     classes.push(config.sprite_class);
     classes.push(sprite_options.sprite + '-0');
@@ -96,7 +96,7 @@ var game = {
       .data('animation', sprite_options)
       .data('row', $this.data('row'))
       .data('col', $this.data('col'))
-      .data('move_func', game.move_action);
+      .data('move_func', spriteful.move_action);
       
     return $this;
   }
@@ -115,8 +115,8 @@ var game = {
       col: $dest.data('col')
     }
   
-    var path = game.find_path(start, end, []);
-    var config = $this.gameConfig();
+    var path = spriteful.find_path(start, end, []);
+    var config = $this.spritefulConfig();
     
     return $(_(path).map(function(o) {
       o._tile_class = config.tile_class;
