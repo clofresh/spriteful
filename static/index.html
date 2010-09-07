@@ -13,15 +13,19 @@
     board: {
       tile_width: 40,
       tile_height: 40,
-      tile_count: function() { return this.tile_width * this.tile_height }
     },
     tile_class: 'tile',
-    player_id: 'player'
+    player_id: 'player',
+    actor_class: 'actor'
   }
   
   
   $(function() {
-    $('#content').initTiles(config.tile_class, config.board);
+    // Load generic game engine
+    $('#content').game(config);
+    
+    // Run custom game configuration
+    
     $('.' + config.tile_class).addClass('grass');
     $('#content').delegate('.' + config.tile_class, 'click', function() {
       // This is bind in the Underscore.js/Prototype sense of the method
@@ -29,9 +33,8 @@
       // not assigning event handlers in jQuery sense.  
       _.bind(game.update_player_intentions, this)(config.tile_class, config.player_id);
     });
-    $('#content').initClock('.actor', 200);
     
-    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey actor facing-right sprite-0"></div>').data('row', 4).data('col', 4);
+    $('#cell-4-4').html('<div id="' + config.player_id + '" class="player monkey ' + config.actor_class + ' facing-right sprite-0"></div>').data('row', 4).data('col', 4);
     $('#' + config.player_id).data('animation', {sprite:'sprite', num: 0, total: 4});
     
     

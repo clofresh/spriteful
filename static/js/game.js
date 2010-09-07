@@ -97,6 +97,11 @@ var game = {
 
 
 (function($) {
+  $.fn.game = function(config) {
+    $(this).initTiles(config.tile_class, config.board)
+           .initClock('.' + config.actor_class, config.heartbeat_interval);
+  };
+  
   $.fn.pathTo = function(end_selector) {
     $dest = $(end_selector);
     
@@ -126,7 +131,9 @@ var game = {
       return Math.floor(i % tile_width);
     }
     
-    var tiles = _.range(board.tile_count()).map(function(i) {
+    var tile_count = board.tile_width * board.tile_height;
+    
+    var tiles = _.range(tile_count).map(function(i) {
       var coordinates = {
         row: getRowNum(i, board.tile_width), 
         col: getColNum(i, board.tile_width),
@@ -146,7 +153,7 @@ var game = {
       }
     });
     
-
+    return $(this);
   };
 
   $.fn.initClock = function(actor_selector, beat_interval) {
@@ -167,6 +174,8 @@ var game = {
         $(this).data('intentions', intentions);
       }
     });
+
+    return $(this);
   };
   
 })(jQuery);
