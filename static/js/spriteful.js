@@ -72,7 +72,8 @@ var spriteful = {
       width: dimensions[0],
       height: dimensions[1],
       frames: dimensions[2],
-      url: img_url
+      url: img_url,
+      num: 0
     };
     
     var key = [sprite.type, sprite.animation].join('.');
@@ -202,11 +203,11 @@ var spriteful = {
   $.fn.advanceAnimation = function() {
     var $this = $(this);
     var old_animation = $this.data('animation');
-    var old_class = [old_animation.sprite, old_animation.num].join('-');
+    var old_class = [old_animation.animation, old_animation.num].join('-');
 
     var new_animation = old_animation;
-    new_animation.num = (new_animation.num + 1) % new_animation.total;
-    var new_class = [new_animation.sprite, new_animation.num].join('-');
+    new_animation.num = (new_animation.num + 1) % new_animation.frames;
+    var new_class = [new_animation.animation, new_animation.num].join('-');
     
     $this.removeClass(old_class).addClass(new_class).data('animation', new_animation);
   }
