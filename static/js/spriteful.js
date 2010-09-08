@@ -22,17 +22,12 @@ var spriteful = {
       new_path.push(end);
       return path;
     } else {
-      var step;
-      if (end.row > start.row) {
-        step = {row: 1, col: 0};
-      } else if (end.row < start.row) {
-        step = {row: -1, col: 0};
-      } else if (end.col > start.col) {
-        step = {row: 0, col: 1};
-      } else if (end.col < start.col) {
-        step = {row:0, col: -1};
-      }
-    
+      var step = {row:0, col: 0};
+      if (end.row > start.row)      { step.row += 1 } 
+      else if (end.row < start.row) { step.row -= 1 }
+      if (end.col > start.col)      { step.col += 1 }
+      else if (end.col < start.col) { step.col -= 1 }
+
       next = {
         row: start.row + step.row,
         col: start.col + step.col
