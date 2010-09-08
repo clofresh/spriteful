@@ -41,7 +41,15 @@
       other_classes: ['player', 'facing-right'], 
       starting_sprite: 'walk',
       sprites: {
-        walk: './img/monkey.walk.42-22-4.gif'
+        walk: './img/monkey.walk.42-22-4.gif',
+        bite: './img/monkey.bite.43-22-3.gif'
+      }
+    });
+    
+    $(document).keypress(function(event) {
+      if (event.which == 32) {
+       $("#player").bite();
+       event.preventDefault();
       }
     });
     

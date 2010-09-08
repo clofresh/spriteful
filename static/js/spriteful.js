@@ -1,4 +1,4 @@
-// console.log = function() {};
+console.log = function() {};
 
 var spriteful = {
   loaded_sprites: {},
@@ -82,14 +82,14 @@ var spriteful = {
   templates: {
     'sprite_css': [
       "<style>",
-      ".<%= type %> {",
+      ".<%= type %>.<%= animation %> {",
       "  background-image: url(<%= url %>);",
       "  background-repeat: no-repeat;",
       "  width: <%= width %>px;",
       "  height: <%= height %>px;",
       "}",
       "<% _.each(_.range(frames), function(i) { %>",
-      "  .<%= type %>.<%= animation %>-<%= i %> { background-position: <%= -1 * i * width %>px 0px }",
+      "  .<%= type %>.<%= animation %>.sprite-<%= i %> { background-position: <%= -1 * i * width %>px 0px }",
       " <% }); %>",
       "</style>"
     ].join("\n")
@@ -129,14 +129,21 @@ var spriteful = {
 
     $this.append(el);
     
-    var sprite_options = spriteful.parse_sprite_image(options.sprites[options.starting_sprite]);
+    var animations = _.reduce(options.sprites, {}, function(memo, val, key) { 
+      memo[key] = spriteful.parse_sprite_image(val);
+      return memo;
+    });
+    
+    var current_animation = animations[options.starting_sprite];
     $('#' + options.id)
-      .data('animation', sprite_options)
+      .data('animation', current_animation)
+      .data('animations', animations)
       .data('row', $this.data('row'))
       .data('col', $this.data('col'))
       .data('move_func', spriteful.move_action)
-      .data('sprites', options.sprites);
-      
+      .data('sprites', options.sprites)
+      .addClass(options.starting_sprite);
+    
     return $this;
   }
   
@@ -168,11 +175,50 @@ var spriteful = {
     return $(this).each(function() {
       var $this = $(this);
       var move_func = $this.data('move_func');
-      var intentions = _($this.pathTo(end_selector)).map(function(node) {
+      $this.intentions(_($this.pathTo(end_selector)).map(function(node) {
         return function() { move_func($this, node) };
-      });
-      $this.data('intentions', intentions);
+      }));
     })
+  };
+  
+  $.fn.animation = function(a) {
+    $(this).each(function() {
+      var $this = $(this);
+      var old_animation = $this.data('animation');
+      var new_animation = $this.data('animations')[a];
+      new_animation.num = 0;
+      $this.data('animation', new_animation);
+      $this.removeClass(old_animation.animation)
+           .removeClass(['sprite', old_animation.num].join('-'))
+           .addClass(new_animation.animation)
+           .addClass(['sprite', new_animation.num].join('-'));
+      old_animation.num = 0;
+    });
+    
+    return $(this);
+  };
+  
+  $.fn.intentions = function(intentions) {
+    $(this).each(function() {
+      $(this).data('intentions', intentions);
+    });
+    
+    return $(this);
+  };
+  
+  $.fn.bite = function() {
+    $(this).each(function() {
+      var $this = $(this);
+      $this.animation('bite');
+      $this.intentions([
+        function() { $this.advanceAnimation() },
+        function() { $this.advanceAnimation() },
+        function() {
+          $this.animation('walk');
+        },
+      ]);
+    })
+    return $(this);
   };
   
   $.fn.orientTowards = function(target_selector) {
@@ -198,11 +244,11 @@ var spriteful = {
   $.fn.advanceAnimation = function() {
     var $this = $(this);
     var old_animation = $this.data('animation');
-    var old_class = [old_animation.animation, old_animation.num].join('-');
+    var old_class = ['sprite', old_animation.num].join('-');
 
     var new_animation = old_animation;
     new_animation.num = (new_animation.num + 1) % new_animation.frames;
-    var new_class = [new_animation.animation, new_animation.num].join('-');
+    var new_class = ['sprite', new_animation.num].join('-');
     
     $this.removeClass(old_class).addClass(new_class).data('animation', new_animation);
   }
