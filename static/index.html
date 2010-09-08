@@ -37,7 +37,7 @@
     $('#cell-4-4').placeSprite(
       config.player_id, 
       ['player', 'monkey', 'facing-right'], 
-      {sprite:'sprite', num: 0, total: 4}
+      {sprite:'walk', num: 0, total: 4}
     );
     
     _(_.range(10)).each(function(i) {
@@ -49,7 +49,7 @@
       $(dest).placeSprite(
         "large-monkey-" + i, 
         ['large-monkey', 'facing-left'], 
-        {sprite:'sprite', num: 0, total: 4}
+        {sprite:'walk', num: 0, total: 4}
       );
     })
     
