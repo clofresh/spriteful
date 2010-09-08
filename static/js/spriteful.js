@@ -1,4 +1,8 @@
+console.log = function() {};
+
 var spriteful = {
+  loaded_sprites: {},
+  
   find_path: function(start, end, path) {
     // Eventually implement this as A*
 
@@ -57,8 +61,46 @@ var spriteful = {
     
     $(node).append(cloned);
     
+  },
+  
+  parse_sprite_image: function(img_url) {
+    var parsed = $.url.setUrl(img_url).attr("file").split('.');
+    var dimensions = parsed[2].split('-');
+    var sprite = {
+      type: parsed[0],
+      animation: parsed[1],
+      width: dimensions[0],
+      height: dimensions[1],
+      frames: dimensions[2],
+      url: img_url
+    };
+    
+    var key = [sprite.type, sprite.animation].join('.');
+    if (!spriteful.loaded_sprites[key]) {
+      $(_.template(spriteful.templates.sprite_css, sprite)).appendTo('head');
+      spriteful.loaded_sprites[key] = true;
+    }
+    return sprite;
+  },
+
+  templates: {
+    'sprite_css': [
+      "<style>",
+      ".<%= type %> {",
+      "  background-image: url(<%= url %>);",
+      "  background-repeat: no-repeat;",
+      "  width: <%= width %>px;",
+      "  height: <%= height %>px;",
+      "}",
+      "<% _.each(_.range(frames), function(i) { %>",
+      "  .<%= type %>.<%= animation %>-<%= i %> { background-position: <%= -1 * i * width %>px 0px }",
+      " <% }); %>",
+      "</style>"
+    ].join("\n")
   }
 };
+
+
 
 
 (function($) {
@@ -73,25 +115,31 @@ var spriteful = {
     return $(this).parents('._controller').data('config');
   }
   
-  $.fn.placeSprite = function(id, classes, sprite_options) {
+  $.fn.placeSprite = function(options) {
+    //id, classes, sprite_options
     var $this = $(this);
     var config = $this.spritefulConfig();
+    var classes = options.other_classes;
+    classes.push(options.main_class);
     classes.push(config.actor_class);
     classes.push(config.sprite_class);
-    classes.push(sprite_options.sprite + '-0');
+    classes.push(options.starting_sprite + '-0');
     
     var sprite_html = _.template('<div id="<%= id %>" class="<%= classes %>"></div>', {
-      id: id,
+      id: options.id,
       classes: classes.join(" ")
     });
     var el = $(sprite_html);
 
     $this.append(el);
-    $('#' + id)
+    
+    var sprite_options = spriteful.parse_sprite_image(options.sprites[options.starting_sprite]);
+    $('#' + options.id)
       .data('animation', sprite_options)
       .data('row', $this.data('row'))
       .data('col', $this.data('col'))
-      .data('move_func', spriteful.move_action);
+      .data('move_func', spriteful.move_action)
+      .data('sprites', options.sprites);
       
     return $this;
   }

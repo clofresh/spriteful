@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="css/monkey.css" type="text/css" media="screen" /> 
 
 <script src="js/jquery-1.4.2.min.js"></script>
+<script src="js/jquery.url-bb2bf.js"></script>
 <script src="js/underscore-0.6.0.min.js"></script>
 <script src="js/spriteful.js"></script>
 
@@ -34,11 +35,15 @@
       $('#' + config.player_id).moveTo($(this));
     });
     
-    $('#cell-4-4').placeSprite(
-      config.player_id, 
-      ['player', 'monkey', 'facing-right'], 
-      {sprite:'walk', num: 0, total: 4}
-    );
+    $('#cell-4-4').placeSprite({
+      id: config.player_id,
+      main_class: 'monkey',
+      other_classes: ['player', 'facing-right'], 
+      starting_sprite: 'walk',
+      sprites: {
+        walk: './img/monkey.walk.42-22-4.gif'
+      }
+    });
     
     _(_.range(10)).each(function(i) {
       var dest = _.template("#cell-<%= x %>-<%= y %>", {
@@ -46,11 +51,15 @@
         y: Math.round(Math.random() * 100) % config.board.cols
       });
       
-      $(dest).placeSprite(
-        "large-monkey-" + i, 
-        ['large-monkey', 'facing-left'], 
-        {sprite:'walk', num: 0, total: 4}
-      );
+      $(dest).placeSprite({
+        id: "large-monkey-" + i,
+        main_class: 'large-monkey',
+        other_classes: ['facing-left'],
+        starting_sprite: 'walk',
+        sprites: {
+          walk: './img/large-monkey.walk.52-28-4.gif'
+        }
+      });
     })
     
     $(".large-monkey").live('g:idle', function() {

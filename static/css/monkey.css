@@ -7,28 +7,4 @@
   background-image: url(../img/grass.gif)
 }
 
-.monkey {
-  background-image: url(../img/monkey.walk.42-22-4.gif);
-  background-repeat: no-repeat;
-  width: 42px;
-  height: 22px;
-}
-
-.monkey.walk-0 { background-position: 0px 0px }
-.monkey.walk-1 { background-position: -42px 0px }
-.monkey.walk-2 { background-position: -84px 0px }
-.monkey.walk-3 { background-position: -126px 0px }
-
-.large-monkey {
-  background-image: url(../img/large-monkey.walk.52-28-4.gif);
-  background-repeat: no-repeat;
-  width: 52px;
-  height: 28px;
-}
-
-.large-monkey.walk-0 { background-position: 0px 0px }
-.large-monkey.walk-1 { background-position: -52px 0px }
-.large-monkey.walk-2 { background-position: -104px 0px }
-.large-monkey.walk-3 { background-position: -156px 0px }
-
 
