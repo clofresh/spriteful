@@ -87,6 +87,7 @@ var spriteful = {
       "  background-repeat: no-repeat;",
       "  width: <%= width %>px;",
       "  height: <%= height %>px;",
+      "  position: relative;",
       "}",
       "<% _.each(_.range(frames), function(i) { %>",
       "  .<%= type %>.<%= animation %>.sprite-<%= i %> { background-position: <%= -1 * i * width %>px 0px }",
@@ -211,10 +212,21 @@ var spriteful = {
       var $this = $(this);
       $this.animation('bite');
       $this.intentions([
-        function() { $this.advanceAnimation() },
-        function() { $this.advanceAnimation() },
+        function() { 
+          $this.css('left', '2px')
+               .css('top', '2px')
+               .advanceAnimation()
+        },
+        function() { 
+          $this.css('left', '3px')
+               .css('top', '3px')
+               .advanceAnimation() 
+        },
         function() {
-          $this.animation('walk');
+          $this.css('position', 'relative')
+               .css('left', '0px')
+               .css('top', '0px')
+               .animation('walk');
         },
       ]);
     })
