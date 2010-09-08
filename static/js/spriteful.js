@@ -1,4 +1,4 @@
-console.log = function() {};
+// console.log = function() {};
 
 var spriteful = {
   loaded_sprites: {},
@@ -41,8 +41,8 @@ var spriteful = {
   
   move_action: function(ref, node) {
     var $this = $(ref);
-    console.log(_.template('<%= id %> is moving to [<%= row %>, <%= col %>]', {
-      id: $this.selector,
+    console.log(_.template('#<%= id %> is moving to [<%= row %>, <%= col %>]', {
+      id: $this.attr('id'),
       row: node.data('row'),
       col: node.data('col')
     }));

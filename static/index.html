@@ -82,10 +82,7 @@
           y: Math.round(Math.random() * 100) % config.board.cols
         });
       
-        // Something weird with the garbage collection won't let me use $(this)
         $(this).moveTo(dest);
-      } else {
-        console.log('#large-monkey-0 is staying put');
       }
     });
     
