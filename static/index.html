@@ -54,7 +54,7 @@
       $(dest).placeSprite({
         id: "large-monkey-" + i,
         main_class: 'large-monkey',
-        other_classes: ['facing-left'],
+        other_classes: ['facing-left', 'random-walk'],
         starting_sprite: 'walk',
         sprites: {
           walk: './img/large-monkey.walk.52-28-4.gif'
@@ -62,7 +62,20 @@
       });
     })
     
-    $(".large-monkey").live('g:idle', function() {
+    $(_.template("#cell-<%= x %>-<%= y %>", {
+        x: Math.round(Math.random() * 100) % config.board.rows,
+        y: Math.round(Math.random() * 100) % config.board.cols
+      })).placeSprite({
+      id: "upright-monkey-0",
+      main_class: 'upright-monkey',
+      other_classes: ['facing-left', 'random-walk'],
+      starting_sprite: 'walk',
+      sprites: {
+        walk: './img/upright-monkey.walk.34-37-4.gif'
+      }
+    });
+    
+    $(".random-walk").live('g:idle', function() {
       if (Math.random() * 10 > 9) {
         var dest = _.template("#cell-<%= x %>-<%= y %>", {
           x: Math.round(Math.random() * 100) % config.board.rows,
