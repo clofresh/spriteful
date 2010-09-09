@@ -1,19 +1,15 @@
-console.log = function() {};
-
-var spriteful = {
+var spriteful = {  
   loaded_sprites: {},
   
   find_path: function(start, end, path) {
     // Eventually implement this as A*
 
-    /*
-    console.log(_.template('Finding path from (<%= start.row %>, <%= start.col %>) to (<%= end.row %>,<%= end.col %>)', 
+    logger.debug(_.template('Finding path from (<%= start.row %>, <%= start.col %>) to (<%= end.row %>,<%= end.col %>)', 
       {
         start: start,
         end: end
       }
     ));
-    */
   
     var equals = function(a, b) { return (a.row == b.row && a.col == b.col) };
     var new_path = path;
@@ -41,7 +37,7 @@ var spriteful = {
   
   move_action: function(ref, node) {
     var $this = $(ref);
-    console.log(_.template('#<%= id %> is moving to [<%= row %>, <%= col %>]', {
+    logger.debug(_.template('#<%= id %> is moving to [<%= row %>, <%= col %>]', {
       id: $this.attr('id'),
       row: node.data('row'),
       col: node.data('col')
@@ -96,7 +92,6 @@ var spriteful = {
     ].join("\n")
   }
 };
-
 
 
 
@@ -358,7 +353,7 @@ var spriteful = {
       if (!_.isEmpty(intentions)) {
         var next = _(intentions).first();
         $(this).data('intentions', _(intentions).slice(1, intentions.length));
-        console.log('#' + $(this).attr('id') + ' has ' + (intentions.length - 1) + ' intentions left');
+        logger.debug('#' + $(this).attr('id') + ' has ' + (intentions.length - 1) + ' intentions left');
         next();
       } else {
         $(this).trigger('g:idle');
