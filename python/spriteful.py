@@ -14,19 +14,30 @@ class World(object):
         self.cols = cols
         self.entities = {}
         self.id_sequence = 1
+        self.changed = []
     
     def add(self, entity):
         new_id = self.id_sequence
-        self.entities[new_id] = entity
+        entity.set_id(new_id)
+        self.entities[entity.id] = entity
         self.id_sequence += 1
-        
-        return new_id
+        self.changed.append(entity.to_dict())
+        return entity.id
     
     def to_dict(self):
         return dict(
             type='world',
-            rows=self.rows,
-            cols=self.cols,
+            heartbeat_interval=50,
+            board=dict(
+                tile_width=10,
+                tile_height=10,
+                rows=self.rows,
+                cols=self.cols,
+            ),
+            tile_class='tile',
+            player_id='player',
+            actor_class='actor',
+            sprite_class='sprite',
             entities=dict([(id, e.to_dict()) for id, e 
                             in self.entities.items()])
         )
@@ -34,17 +45,13 @@ class World(object):
     def __call__(self):
         for id, entity in self.entities.items():
             entity.update(world)
+            if entity.changed:
+                self.changed.append(entity.to_dict())
+                entity.changed = False
     
     def changes(self):
-        changed = dict([
-            (id, e.to_dict()) for id, e 
-            in self.entities.items()
-            if e.changed
-        ])
-        
-        for e in self.entities.values():
-            e.changed = False
-        
+        changed = self.changed
+        self.changed = []
         return changed
 
 class Npc(object):
@@ -52,16 +59,22 @@ class Npc(object):
         self.x = x
         self.y = y
         self.changed = False
+        self.id = None
+        self.main_class = 'large-monkey'
+        self.other_classes = ['facing-left']
+        self.starting_sprite = 'walk'
+        self.sprites = {
+            'walk': '/static/img/large-monkey.walk.52-28-4.gif'
+        }
+    
+    def set_id(self, id_number):
+        self.id = 'large-monkey-%d' % id_number
     
     def __repr__(self):
         return 'Npc(%s, %s)' % (self.x, self.y)
     
     def to_dict(self):
-        return dict(
-            type='npc',
-            x=self.x,
-            y=self.y
-        )
+        return self.__dict__
     
     def update(self, world):
         old = (self.x, self.y)
@@ -87,7 +100,7 @@ class Publisher(object):
         if changes:
             print 'Changes: %s' % repr(changes)
             for subscriber in self.subscribers:
-                subscriber.write_message(changes)
+                subscriber.write_message({"changes": changes})
 
 class WorldHandler(RequestHandler):
     def get(self):
@@ -96,7 +109,7 @@ class WorldHandler(RequestHandler):
 
 class NpcHandler(RequestHandler):
     def get(self):
-        id = int(self.get_argument('id'))
+        id = self.get_argument('id')
         try:
             entity = world.entities[id]
         except KeyError:
@@ -116,7 +129,7 @@ class NpcHandler(RequestHandler):
         self.redirect('%s?id=%s' % (self.reverse_url('Npc'), id))
     
     def delete(self):
-        id = int(self.get_argument('id'))
+        id = self.get_argument('id')
         del world.entities[id]
 
 class GameConnection(WebSocketHandler):
@@ -134,7 +147,7 @@ class GameConnection(WebSocketHandler):
 
 def main():
     global world, publisher
-    world = World(10, 10)
+    world = World(40, 40)
     publisher = Publisher(world)
 
 

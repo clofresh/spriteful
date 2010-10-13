@@ -9,92 +9,37 @@
 <script src="js/spriteful.js"></script>
 
 <script>
-  var config = {
-    heartbeat_interval: 50,
-    board: {
-      tile_width: 10,
-      tile_height: 10,
-      rows: 40,
-      cols: 40
-    },
-    tile_class: 'tile',
-    player_id: 'player',
-    actor_class: 'actor',
-    sprite_class: 'sprite'
-  }
-  
-
-  
   $(function() {
-    // Load generic game engine
-    $('#content').spriteful(config);
+    logger.configure({verbosity: "debug"});
     
-    // Run custom game configuration
+    var ws = new WebSocket("ws://localhost:8888/connect");
     
-    $('.' + config.tile_class).addClass('grass');
-    $('#content').delegate('.' + config.tile_class, 'click', function() {
-      $('#' + config.player_id).moveTo($(this));
-    });
-    
-    $('#cell-4-4').placeSprite({
-      id: config.player_id,
-      main_class: 'monkey',
-      other_classes: ['player', 'facing-right'], 
-      starting_sprite: 'walk',
-      sprites: {
-        walk: './img/monkey.walk.42-22-4.gif',
-        bite: './img/monkey.bite.43-22-3.gif'
-      }
-    });
-    
-    $(document).keypress(function(event) {
-      if (event.which == 32) {
-       $("#player").bite();
-       event.preventDefault();
-      }
-    });
-    
-    _(_.range(10)).each(function(i) {
-      var dest = _.template("#cell-<%= x %>-<%= y %>", {
-        x: Math.round(Math.random() * 100) % config.board.rows,
-        y: Math.round(Math.random() * 100) % config.board.cols
-      });
-      
-      $(dest).placeSprite({
-        id: "large-monkey-" + i,
-        main_class: 'large-monkey',
-        other_classes: ['facing-left', 'random-walk'],
-        starting_sprite: 'walk',
-        sprites: {
-          walk: './img/large-monkey.walk.52-28-4.gif'
+    var loop = function(evt) {
+      var changes = JSON.parse(evt.data).changes;
+      _.each(changes, function(data) {
+        var dest = _.template("#cell-<%= x %>-<%= y %>", data);
+        if ($("#" + data.id).length == 0) {
+          $(dest).placeSprite(data);
+        } else {
+          $("#" + data.id).moveTo(dest);
         }
-      });
-    })
+      })
+    };
     
-    $(_.template("#cell-<%= x %>-<%= y %>", {
-        x: Math.round(Math.random() * 100) % config.board.rows,
-        y: Math.round(Math.random() * 100) % config.board.cols
-      })).placeSprite({
-      id: "upright-monkey-0",
-      main_class: 'upright-monkey',
-      other_classes: ['facing-left', 'random-walk'],
-      starting_sprite: 'walk',
-      sprites: {
-        walk: './img/upright-monkey.walk.34-37-4.gif'
-      }
-    });
-    
-    $(".random-walk").live('g:idle', function() {
-      if (Math.random() * 10 > 9) {
-        var dest = _.template("#cell-<%= x %>-<%= y %>", {
-          x: Math.round(Math.random() * 100) % config.board.rows,
-          y: Math.round(Math.random() * 100) % config.board.cols
-        });
+    var init = function(evt) {
+      var config = JSON.parse(evt.data)
+      logger.info("Initializing Spriteful: ");
+      logger.info(config);
       
-        $(this).moveTo(dest);
-      }
-    });
+      $("#content").spriteful(config);
+      $('.' + config.tile_class).addClass('grass');
+
+      ws.onmessage = loop;
+    };
     
+    ws.onmessage = init;
+
+
   })
 </script>
 </head>
