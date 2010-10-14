@@ -1,5 +1,6 @@
 import functools
 from collections import namedtuple
+from glob import glob
 from pprint import pprint
 from random import randint
 
@@ -93,19 +94,46 @@ def find_path(start, end, path=[]):
         
         return find_path(next, end, new_path);
 
-class Npc(object):
-    def __init__(self, position):
+class Entity(object):
+    main_class = None
+    other_classes = []
+    starting_sprite = None
+    
+    @staticmethod
+    def get_sprites(main_class):
+        sprites = {}
+        for sprite in glob('static/img/%s*' % main_class):
+            _, sprite_type, _, _ = sprite.split('.')
+            sprites[sprite_type] = '/' + sprite
+        return sprites
+    
+    @classmethod
+    def default(cls, position):
+        return cls(
+            position,
+            cls.main_class,
+            cls.other_classes,
+            cls.starting_sprite
+        )
+
+    def __init__(self, position, main_class, other_classes, starting_sprite):
         self.position = position
+        self.main_class = main_class
+        self.other_classes = other_classes
+        self.starting_sprite = starting_sprite
+        self.sprites = self.get_sprites(main_class)
+
         self.id = None
-        self.main_class = 'large-monkey'
-        self.other_classes = ['facing-left']
-        self.starting_sprite = 'walk'
-        self.sprites = {
-            'walk': '/static/img/large-monkey.walk.52-28-4.gif'
-        }
         self.intentions = []
         self._changes = []
-    
+        
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, repr(self.position))
+
+    def set_id(self, id_number):
+        self.id = '%s-%d' % (self.main_class, id_number)
+
     def move(self, position):
         self.position = position
         self._changes.append({
@@ -113,12 +141,6 @@ class Npc(object):
             'type': 'move', 
             'position': tuple(position)
         })
-    
-    def set_id(self, id_number):
-        self.id = 'large-monkey-%d' % id_number
-    
-    def __repr__(self):
-        return 'Npc(%s)' % repr(self.position)
     
     def to_dict(self):
         return {
@@ -130,6 +152,27 @@ class Npc(object):
             'starting_sprite': self.starting_sprite,
             'sprites': self.sprites,
         }
+    
+    @property
+    def changed(self):
+        return len(self._changes) > 0
+    
+    def changes(self):
+        output = self._changes
+        self._changes = []
+        
+        return output
+
+class Pc(Entity):
+    main_class = 'monkey'
+    other_classes = ['facing-left']
+    starting_sprite = 'walk'
+
+    
+class Npc(Entity):
+    main_class = 'large-monkey'
+    other_classes = ['facing-left']
+    starting_sprite = 'walk'
     
     def update(self, world):
         if not self.intentions:
@@ -145,15 +188,6 @@ class Npc(object):
             intent()
             self.intentions = self.intentions[1:]
     
-    @property
-    def changed(self):
-        return len(self._changes) > 0
-    
-    def changes(self):
-        output = self._changes
-        self._changes = []
-        
-        return output
 
 class Publisher(object):
     publisher = None
@@ -206,7 +240,7 @@ class NpcHandler(RequestHandler):
         x = int(self.get_argument('x'))
         y = int(self.get_argument('y'))
         
-        npc = Npc(Position(x, y))
+        npc = Npc.default(Position(x, y))
         id = world.add(npc)
         
         self.redirect(self.reverse_url('Npc', id=id))
