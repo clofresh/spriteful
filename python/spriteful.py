@@ -1,3 +1,6 @@
+import functools
+from collections import namedtuple
+from pprint import pprint
 from random import randint
 
 from tornado.httpserver import HTTPServer
@@ -5,6 +8,10 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import RequestHandler, Application, URLSpec, HTTPError
 from tornado.websocket import WebSocketHandler
 
+class Position(namedtuple('Position', 'x y')):
+    def __repr__(self):
+        return '(%s, %s)' % (self.x, self.y)
+    
 class World(object):
     world = None
     rows = 40
@@ -29,7 +36,9 @@ class World(object):
         entity.set_id(new_id)
         self.entities[entity.id] = entity
         self.id_sequence += 1
-        self.changed.append(entity.to_dict())
+        message = {'type': 'new'}
+        message.update(entity.to_dict())
+        self.changed.append(message)
         return entity.id
     
     def to_dict(self):
@@ -55,19 +64,37 @@ class World(object):
         for id, entity in self.entities.items():
             entity.update(world)
             if entity.changed:
-                self.changed.append(entity.to_dict())
-                entity.changed = False
+                self.changed.extend(entity.changes())
     
     def changes(self):
         changed = self.changed
         self.changed = []
         return changed
 
+def find_path(start, end, path=[]):
+    new_path = path
+    if start == end:
+        new_path.append(end)
+        return new_path
+    else:
+        step = [0, 0]
+        if end.x > start.x:
+            step[0] += 1
+        elif end.x < start.x:
+            step[0] -= 1
+        if end.y > start.y:
+            step[1] += 1
+        elif end.y < start.y:
+            step[1] -= 1
+            
+        next = Position(start.x + step[0], start.y + step[1])
+        new_path.append(next)
+        
+        return find_path(next, end, new_path);
+
 class Npc(object):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.changed = False
+    def __init__(self, position):
+        self.position = position
         self.id = None
         self.main_class = 'large-monkey'
         self.other_classes = ['facing-left']
@@ -75,23 +102,56 @@ class Npc(object):
         self.sprites = {
             'walk': '/static/img/large-monkey.walk.52-28-4.gif'
         }
+        self.intentions = []
+        self._changes = []
+    
+    def move(self, position):
+        self.position = position
+        self._changes.append({
+            'id': self.id,
+            'type': 'move', 
+            'position': tuple(position)
+        })
     
     def set_id(self, id_number):
         self.id = 'large-monkey-%d' % id_number
     
     def __repr__(self):
-        return 'Npc(%s, %s)' % (self.x, self.y)
+        return 'Npc(%s)' % repr(self.position)
     
     def to_dict(self):
-        return self.__dict__
+        return {
+            'id': self.id,
+            'position': self.position,
+            'main_class': self.main_class,
+            'other_classes': self.other_classes,
+            'starting_sprite': self.starting_sprite,
+            'sprites': self.sprites,
+        }
     
     def update(self, world):
-        old = (self.x, self.y)
-        self.x = (self.x + randint(-1, 1)) % world.cols
-        self.y = (self.y + randint(-1, 1)) % world.rows
+        if not self.intentions:
+            target = Position(randint(0, world.rows - 1), randint(0, world.cols - 1))
+            if target != self.position:
+                path = find_path(self.position, target, [])
+                self.intentions = [
+                    functools.partial(Npc.move, self, p)
+                    for p in path
+                ]
+        else:
+            intent = self.intentions[0]
+            intent()
+            self.intentions = self.intentions[1:]
+    
+    @property
+    def changed(self):
+        return len(self._changes) > 0
+    
+    def changes(self):
+        output = self._changes
+        self._changes = []
         
-        self.changed = (old != (self.x, self.y))
-
+        return output
 
 class Publisher(object):
     publisher = None
@@ -117,7 +177,8 @@ class Publisher(object):
         world = World.instance()
         changes = world.changes()
         if changes:
-            print 'Changes: %s' % repr(changes)
+            print 'Changes: ',
+            pprint(changes)
             for subscriber in self.subscribers:
                 subscriber.write_message({"changes": changes})
 
@@ -143,10 +204,10 @@ class NpcHandler(RequestHandler):
         x = int(self.get_argument('x'))
         y = int(self.get_argument('y'))
         
-        npc = Npc(x, y)
+        npc = Npc(Position(x, y))
         id = world.add(npc)
         
-        self.redirect('%s?id=%s' % (self.reverse_url('Npc'), id))
+        self.redirect(self.reverse_url('Npc', id=id))
     
     def delete(self):
         world = World.instance()
@@ -163,7 +224,13 @@ class GameConnection(WebSocketHandler):
         self.write_message(publisher.world.to_dict())
 
     def on_message(self, message):
-        self.write_message(u"You said: " + message)
+        print 'Received: %s' % message
+        
+        data = json.loads(message)
+        
+        if data['type'] == 'moved':
+            new_position = Position(data['x'], data['y'])
+            World.instance().entities[data['id']].moved(new_position)
 
     def on_close(self):
         publisher = Publisher.instance()
@@ -188,8 +255,8 @@ def main():
 
     io = IOLoop.instance()
 
-    PeriodicCallback(World.instance(), callback_time=500).start()
-    PeriodicCallback(Publisher.instance(), callback_time=500).start()
+    PeriodicCallback(World.instance(), callback_time=100).start()
+    PeriodicCallback(Publisher.instance(), callback_time=100).start()
 
     io.start()
 
