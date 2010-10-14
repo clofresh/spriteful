@@ -5,10 +5,18 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import RequestHandler, Application, URLSpec, HTTPError
 from tornado.websocket import WebSocketHandler
 
-world = None
-publisher = None
-
 class World(object):
+    world = None
+    rows = 40
+    cols = 40
+    
+    @classmethod
+    def instance(cls):
+        if cls.world is None:
+            cls.world = cls(cls.rows, cls.cols)
+        
+        return cls.world
+    
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
@@ -43,6 +51,7 @@ class World(object):
         )
     
     def __call__(self):
+        world = World.instance()
         for id, entity in self.entities.items():
             entity.update(world)
             if entity.changed:
@@ -85,6 +94,15 @@ class Npc(object):
 
 
 class Publisher(object):
+    publisher = None
+    
+    @classmethod
+    def instance(cls):
+        if cls.publisher is None:
+            cls.publisher = cls(World.instance())
+        
+        return cls.publisher
+    
     def __init__(self, world):
         self.subscribers = set()
         self.world = world
@@ -96,6 +114,7 @@ class Publisher(object):
         self.subscribers.remove(subscriber)
     
     def __call__(self):
+        world = World.instance()
         changes = world.changes()
         if changes:
             print 'Changes: %s' % repr(changes)
@@ -104,11 +123,12 @@ class Publisher(object):
 
 class WorldHandler(RequestHandler):
     def get(self):
-        global world
+        world = World.instance()
         self.write(world.to_dict())
 
 class NpcHandler(RequestHandler):
     def get(self):
+        world = World.instance()
         id = self.get_argument('id')
         try:
             entity = world.entities[id]
@@ -118,7 +138,7 @@ class NpcHandler(RequestHandler):
             self.write(entity.to_dict())
     
     def post(self):
-        global world
+        world = World.instance()
         
         x = int(self.get_argument('x'))
         y = int(self.get_argument('y'))
@@ -129,28 +149,27 @@ class NpcHandler(RequestHandler):
         self.redirect('%s?id=%s' % (self.reverse_url('Npc'), id))
     
     def delete(self):
+        world = World.instance()
         id = self.get_argument('id')
-        del world.entities[id]
+        try:
+            del world.entities[id]
+        except KeyError:
+            raise HTTPError(404)
 
 class GameConnection(WebSocketHandler):
     def open(self):
-        global publisher, world
+        publisher = Publisher.instance()
         publisher.subscribe(self)
-        self.write_message(world.to_dict())
+        self.write_message(publisher.world.to_dict())
 
     def on_message(self, message):
         self.write_message(u"You said: " + message)
 
     def on_close(self):
-        global publisher
+        publisher = Publisher.instance()
         publisher.unsubscribe(self)
 
 def main():
-    global world, publisher
-    world = World(40, 40)
-    publisher = Publisher(world)
-
-
     settings = {
         'static_path':   'static',
         'debug':         True
@@ -169,8 +188,8 @@ def main():
 
     io = IOLoop.instance()
 
-    PeriodicCallback(world, callback_time=500).start()
-    PeriodicCallback(publisher, callback_time=500).start()
+    PeriodicCallback(World.instance(), callback_time=500).start()
+    PeriodicCallback(Publisher.instance(), callback_time=500).start()
 
     io.start()
 
