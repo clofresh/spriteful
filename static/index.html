@@ -17,20 +17,13 @@
     var loop = function(evt) {
       var changes = JSON.parse(evt.data).changes;
       _.each(changes, function(message) {
-        if (message.type == 'move') {
-          var $target = $("#" + message.id);
-          var dest = $(_.template("#cell-<%= x %>-<%= y %>", {
-            x: message.position[0], 
-            y: message.position[1]
-          }));
-          $target.intentions([function() { $target.data('move_func')($target, dest) }]);
-        } else if (message.type == 'new') {
-          var dest = _.template("#cell-<%= x %>-<%= y %>", {
-            x: message.position[0], 
-            y: message.position[1]
-          });
-          $(dest).placeSprite(message);
+        var $target;
+        if (message.selector) {
+          $target = $(message.selector);
+        } else {
+          $target= $("#content");
         }
+        $target.trigger('spriteful:' + message.type, message);
       })
     };
     

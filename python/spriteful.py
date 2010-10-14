@@ -36,8 +36,9 @@ class World(object):
         entity.set_id(new_id)
         self.entities[entity.id] = entity
         self.id_sequence += 1
-        message = {'type': 'new'}
-        message.update(entity.to_dict())
+        message = entity.to_dict()
+        message['type'] = 'new'
+        message['selector'] = '#cell-%s-%s' % message['position']
         self.changed.append(message)
         return entity.id
     
@@ -108,7 +109,7 @@ class Npc(object):
     def move(self, position):
         self.position = position
         self._changes.append({
-            'id': self.id,
+            'selector': "#%s" % self.id,
             'type': 'move', 
             'position': tuple(position)
         })
@@ -121,6 +122,7 @@ class Npc(object):
     
     def to_dict(self):
         return {
+            'selector':"#%s" % self.id,
             'id': self.id,
             'position': self.position,
             'main_class': self.main_class,

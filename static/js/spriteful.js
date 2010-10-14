@@ -100,7 +100,10 @@ var spriteful = {
     $(this).data('config', config)
            .addClass('_controller')
            .initTiles(config)
-           .initClock('.' + config.actor_class, config.heartbeat_interval);
+           .initClock('.' + config.actor_class, config.heartbeat_interval)
+           .delegate('.' + config.tile_class, 'spriteful:new', function(evt, message) {
+              $(this).placeSprite(message);
+           });
   };
   
   $.fn.spritefulConfig = function() {
@@ -138,7 +141,15 @@ var spriteful = {
       .data('col', $this.data('col'))
       .data('move_func', spriteful.move_action)
       .data('sprites', options.sprites)
-      .addClass(options.starting_sprite);
+      .addClass(options.starting_sprite)
+      .bind('spriteful:move', function(evt, message) {
+        var $target = $(this);
+        var dest = $(_.template("#cell-<%= x %>-<%= y %>", {
+          x: message.position[0], 
+          y: message.position[1]
+        }));
+        $target.intentions([function() { $target.data('move_func')($target, dest) }]);
+      });
     
     return $this;
   }
