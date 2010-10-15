@@ -42,7 +42,7 @@ class EntityHandler(RequestHandler):
         world = World.instance()
         id = self.get_argument('id')
         try:
-            del world.entities[id]
+            world.remove(id)
         except KeyError:
             raise HTTPError(404)
 
@@ -56,7 +56,7 @@ class GameConnection(WebSocketHandler):
         data = json.loads(message)
         
         world = World.instance()
-        world[data['selector']].receive(data)
+        world.select(data['selector']).receive(data)
 
     def on_close(self):
         publisher = Publisher.instance()

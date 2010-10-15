@@ -5,6 +5,10 @@ from .entity import Pc, Npc
 from .util import Position
 
 class World(object):
+    ''' Singleton that manages all the entities in the game, tracking any 
+        changes that need to be broadcast to subscribers.
+    '''
+    
     world = None
     rows = 40
     cols = 40
@@ -28,14 +32,17 @@ class World(object):
         self.changed = []
     
     def __getitem__(self, key):
+        return self.entities[key]
+    
+    def select(self, selector):
         entities = []
-        if key[0] == '#':
+        if selector[0] == '#':
             try:
-                entities = [self.entities[key[1:]]]
+                entities = [self.entities[selector[1:]]]
             except KeyError:
                 pass
-        elif key[0] == '.':
-            selected_class = key[1:]
+        elif selector[0] == '.':
+            selected_class = selector[1:]
             for entity in self.entities.values():
                 if entity.has_class(selected_class):
                     entities.append(entity)
@@ -46,16 +53,22 @@ class World(object):
         return [entity for entity in self.entities.values()
                 if entity.position in rectangle]
     
+    def _new_entity_message(self, entity):
+        message = entity.to_dict()
+        message['type'] = 'new'
+        message['selector'] = '#cell-%s-%s' % message['position']
+        self.changed.append(message)
+    
     def add(self, entity):
         new_id = self.id_sequence
         entity.set_id(new_id)
         self.entities[entity.id] = entity
         self.id_sequence += 1
-        message = entity.to_dict()
-        message['type'] = 'new'
-        message['selector'] = '#cell-%s-%s' % message['position']
-        self.changed.append(message)
+        self._new_entity_message(entity)
         return entity.id
+    
+    def remove(self, id):
+        del self.entities[id]
     
     def to_dict(self):
         return dict(
@@ -92,6 +105,9 @@ class World(object):
 
 
 class EntityMonad(object):
+    ''' jQuery-like monadic wrapper around a list
+    '''
+    
     def __init__(self, entities=[]):
         self.entities = entities
     
@@ -106,6 +122,10 @@ class EntityMonad(object):
 
 
 class Publisher(object):
+    ''' Singleton that takes the changes in the World object and publishes
+        them to all the subscribers.
+    '''
+    
     publisher = None
     
     @classmethod
