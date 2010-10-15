@@ -73,31 +73,10 @@ var spriteful = {
       url: img_url,
       num: 0
     };
-    
-    var key = [sprite.type, sprite.animation].join('.');
-    if (!spriteful.loaded_sprites[key]) {
-      $(_.template(spriteful.templates.sprite_css, sprite)).appendTo('head');
-      spriteful.loaded_sprites[key] = true;
-    }
-    return sprite;
-  },
 
-  templates: {
-    'sprite_css': [
-      "<style>",
-      ".<%= type %>.<%= animation %> {",
-      "  background-image: url(<%= url %>);",
-      "  background-repeat: no-repeat;",
-      "  width: <%= width %>px;",
-      "  height: <%= height %>px;",
-      "  position: relative;",
-      "}",
-      "<% _.each(_.range(frames), function(i) { %>",
-      "  .<%= type %>.<%= animation %>.sprite-<%= i %> { background-position: <%= -1 * i * width %>px 0px }",
-      " <% }); %>",
-      "</style>"
-    ].join("\n")
+    return sprite;
   }
+  
 };
 
 

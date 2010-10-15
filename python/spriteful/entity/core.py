@@ -14,7 +14,7 @@ class Entity(object):
     @staticmethod
     def get_sprites(main_class):
         sprites = {}
-        for sprite in glob('static/img/%s*' % main_class):
+        for sprite in glob('static/img/sprites/%s*' % main_class):
             _, sprite_type, _, _ = sprite.split('.')
             sprites[sprite_type] = '/' + sprite
         return sprites

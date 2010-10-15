@@ -1,0 +1,17 @@
+{% for type, animation, width, height, frames, url in sprites %}
+
+  .{{type}}.{{animation}} {
+    background-image: url({{url}});
+    background-repeat: no-repeat;
+    width: {{width}} px;
+    height: {{height}} px;
+    position: relative;
+  }
+
+  {% for i in range(frames) %}
+    .{{type}}.{{animation}}.sprite-{{i}} { 
+      background-position: {{-1 * i * width}} px 0px 
+    }
+  {% end %}
+
+{% end %}

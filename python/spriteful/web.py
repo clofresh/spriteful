@@ -1,4 +1,6 @@
 import json
+import os
+from glob import glob
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -9,7 +11,7 @@ from . import entity as entityModule
 from .io import World, Publisher
 from .util import Position
 
-class CssHandler(RequestHandler):
+class CssSpritefulHandler(RequestHandler):
     def get(self):
         board_selector = self.get_argument('board_id')
         
@@ -30,6 +32,27 @@ class CssHandler(RequestHandler):
             tile_height=tile_height,
             sprite_class=sprite_class
         )
+
+class CssSpritesHandler(RequestHandler):
+    def get(self):
+        sprites = []
+        for full_filename in glob('static/img/sprites/*.gif'):
+            filename = os.path.basename(full_filename)
+            
+            type, animation, dimensions, extention = filename.split('.')
+            width, height, frames = dimensions.split('-')
+            url = '/' + full_filename
+            
+            sprites.append((
+                type,
+                animation,
+                int(width),
+                int(height),
+                int(frames),
+                url
+            ))
+            
+        self.render('sprites.css', sprites=sprites)
 
 class WorldHandler(RequestHandler):
     def get(self):
@@ -101,7 +124,8 @@ def main():
         URLSpec(r'/world', WorldHandler, name='World'),
         URLSpec(r'/entity', EntityHandler, name='Entity'),
         URLSpec(r'/connect', GameConnection, name='Connection'),
-        URLSpec(r'/css/spriteful.css', CssHandler, name='Stylesheet'),
+        URLSpec(r'/css/spriteful.css', CssSpritefulHandler, name='SpritefulStylesheet'),
+        URLSpec(r'/css/sprites.css', CssSpritesHandler, name='SpritesStylesheet'),
     ]
 
     application = Application(urls, **settings)
