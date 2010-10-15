@@ -22,7 +22,11 @@ class World(object):
     @classmethod
     def instance(cls):
         if cls.world is None:
-            cls.world = cls(cls.rows, cls.cols)
+            world = cls(cls.rows, cls.cols)
+            for i in range(5):
+                world.add(Npc.default(world.random_position()))
+            world.add(Pc.default(world.random_position()))
+            cls.world = world
         
         return cls.world
     
@@ -88,6 +92,9 @@ class World(object):
         changed = self.changed
         self.changed = []
         return changed
+    
+    def random_position(self):
+        return Position(randint(0, self.rows - 1), randint(0, self.cols - 1))
 
 def find_path(start, end, path=[]):
     new_path = path
@@ -231,8 +238,7 @@ class Npc(Entity):
     
     def update(self, world):
         if not self.intentions:
-            target = Position(randint(0, world.rows - 1), randint(0, world.cols - 1))
-            self.intent_move(target)
+            self.intent_move(world.random_position())
         else:
             super(self.__class__, self).update(world)
     
@@ -336,12 +342,10 @@ def main():
     http_server = HTTPServer(application)
     http_server.listen(8888)
 
-    io = IOLoop.instance()
-
     PeriodicCallback(World.instance(), callback_time=100).start()
     PeriodicCallback(Publisher.instance(), callback_time=100).start()
 
-    io.start()
+    IOLoop.instance().start()
 
 if __name__ == '__main__':
     main()
