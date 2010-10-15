@@ -238,25 +238,46 @@ var spriteful = {
   $.fn.bite = function() {
     $(this).each(function() {
       var $this = $(this);
-      $this.animation('bite');
-      $this.intentions([
-        function() { 
-          $this.css('left', '2px')
-               .css('top', '2px')
-               .advanceAnimation()
-        },
-        function() { 
-          $this.css('left', '3px')
-               .css('top', '3px')
-               .advanceAnimation() 
-        },
-        function() {
-          $this.css('position', 'relative')
-               .css('left', '0px')
-               .css('top', '0px')
-               .animation('walk');
-        },
-      ]);
+      $this.animation('bite'); 
+      if ($this.hasClass('facing-right')) {
+        $this.intentions([
+          function() { 
+            $this.css('left', '2px')
+                 .css('top', '2px')
+                 .advanceAnimation()
+          },
+          function() { 
+            $this.css('left', '3px')
+                 .css('top', '3px')
+                 .advanceAnimation() 
+          },
+          function() {
+            $this.css('position', 'relative')
+                 .css('left', '0px')
+                 .css('top', '0px')
+                 .animation('walk');
+          },
+        ]);
+      } else {
+        $this.intentions([
+          function() { 
+            $this.css('left', '-2px')
+                 .css('top', '-2px')
+                 .advanceAnimation()
+          },
+          function() { 
+            $this.css('left', '-3px')
+                 .css('top', '-3px')
+                 .advanceAnimation() 
+          },
+          function() {
+            $this.css('position', 'relative')
+                 .css('left', '0px')
+                 .css('top', '0px')
+                 .animation('walk');
+          },
+        ]);
+      }
     })
     return $(this);
   };
