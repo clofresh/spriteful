@@ -163,6 +163,15 @@ class Entity(object):
     def set_id(self, id_number):
         self.id = '%s-%d' % (self.main_class, id_number)
 
+    def intent_move(self, target):
+        if target != self.position:
+            path = find_path(self.position, target, [])
+            print path
+            self.intentions = [
+                functools.partial(self.__class__.move, self, p)
+                for p in path
+            ]
+    
     def move(self, position):
         self.position = position
         self._changes.append({
@@ -196,7 +205,10 @@ class Entity(object):
         return selected_class in set([self.main_class]).union(self.other_classes)
     
     def update(self, world):
-        pass
+        if len(self.intentions) > 0:
+            intent = self.intentions[0]
+            intent()
+            self.intentions = self.intentions[1:]
     
     def receive(self, message):
         print '%s received %s' % (self.id, repr(message))
@@ -206,6 +218,11 @@ class Pc(Entity):
     other_classes = ['facing-left']
     starting_sprite = 'walk'
     
+    def receive(self, message):
+        super(self.__class__, self).receive(message)
+
+        if message[u'type'] == u'move':
+            self.intent_move(Position(*message['position']))
     
 class Npc(Entity):
     main_class = 'large-monkey'
@@ -215,16 +232,9 @@ class Npc(Entity):
     def update(self, world):
         if not self.intentions:
             target = Position(randint(0, world.rows - 1), randint(0, world.cols - 1))
-            if target != self.position:
-                path = find_path(self.position, target, [])
-                self.intentions = [
-                    functools.partial(Npc.move, self, p)
-                    for p in path
-                ]
+            self.intent_move(target)
         else:
-            intent = self.intentions[0]
-            intent()
-            self.intentions = self.intentions[1:]
+            super(self.__class__, self).update(world)
     
 
 class Publisher(object):
