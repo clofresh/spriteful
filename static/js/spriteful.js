@@ -1,6 +1,66 @@
 var spriteful = {  
   loaded_sprites: {},
-  websocket: null,
+  
+  connection: {
+    _connection: null,
+
+    send_message: function(message) {
+      var str_message = JSON.stringify(message);
+      logger.debug(str_message); 
+      return this._connection.send(str_message);
+    },
+    
+    connect: function() {
+      this._connection = new WebSocket("ws://localhost:8888/connect");
+    
+      // The bind makes sure that "this" in the init function
+      // refers to the websocket object, not the WebSocket object.
+      // Wow, yeah that's confusing.
+      this._connection.onmessage = _.bind(this.init, this); 
+    
+      return this._connection;
+    },
+  
+    init: function(evt) {
+      var config = JSON.parse(evt.data)
+      logger.info("Initializing Spriteful: ");
+      logger.info(config);
+    
+      $("#content").spriteful(config)
+                   .delegate('.' + config.tile_class, 'click', function() {
+                     $(".player").intentMove($(this));
+                   })
+                   .delegate('.player', 'spriteful:bite', function(evt, message) {
+                     $(this).bite();
+                   });
+      $('.' + config.tile_class).addClass('grass');
+    
+      _.each(config.entities, function(entity) {
+        var dest = _.template("#cell-<%= x %>-<%= y %>", {
+          x: entity.position[0], 
+          y: entity.position[1]
+        });
+        $(dest).placeSprite(entity);
+      });
+
+      this._connection.onmessage = this.loop;
+    },  
+
+    loop: function(evt) {
+      var changes = JSON.parse(evt.data).changes;
+      _.each(changes, function(message) {
+        var $target;
+        if (message.selector) {
+          $target = $(message.selector);
+        } else {
+          $target= $("#content");
+        }
+        $target.trigger('spriteful:' + message.type, message);
+      })
+    },    
+  },
+  
+
     
   move_action: function(ref, node) {
     var $this = $(ref);
@@ -141,7 +201,7 @@ var spriteful = {
   
   $.fn.intentMove = function(target_selector) {
     return $(this).each(function() {
-      spriteful.websocket.send_message({
+      spriteful.connection.send_message({
         selector: '#' + $(this).attr('id'),
         type: 'move',
         position: [
@@ -179,7 +239,7 @@ var spriteful = {
   
   $.fn.intentBite = function() {
     return $(this).each(function() {
-      spriteful.websocket.send_message({
+      spriteful.connection.send_message({
         selector: '#' + $(this).attr('id'),
         type: 'bite'
       })

@@ -6,12 +6,11 @@
 <script src="js/jquery.url-bb2bf.js"></script>
 <script src="js/underscore-0.6.0.min.js"></script>
 <script src="js/logger.js"></script>
-<script src="js/websocket.js"></script>
 <script src="js/spriteful.js"></script>
 
 <script>
   $(function() {
-    spriteful.websocket = websocket.connect();
+    spriteful.connection.connect();
     
     $(document).keypress(function(event) {
       if (event.which == 32) {
