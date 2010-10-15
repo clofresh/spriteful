@@ -9,10 +9,10 @@
 <script src="js/spriteful.js"></script>
 
 <script>
+  var ws = new WebSocket("ws://localhost:8888/connect");
+    
   $(function() {
     logger.configure({verbosity: "debug"});
-    
-    var ws = new WebSocket("ws://localhost:8888/connect");
     
     var loop = function(evt) {
       var changes = JSON.parse(evt.data).changes;

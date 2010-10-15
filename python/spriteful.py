@@ -1,4 +1,5 @@
 import functools
+import json
 from collections import namedtuple
 from glob import glob
 from pprint import pprint
@@ -31,6 +32,21 @@ class World(object):
         self.entities = {}
         self.id_sequence = 1
         self.changed = []
+    
+    def __getitem__(self, key):
+        entities = []
+        if key[0] == '#':
+            try:
+                entities = [self.entities[key[1:]]]
+            except KeyError:
+                pass
+        elif key[0] == '.':
+            selected_class = key[1:]
+            for entity in self.entities.values():
+                if entity.has_class(selected_class):
+                    entities.append(entity)
+                
+        return EntityMonad(entities)
     
     def add(self, entity):
         new_id = self.id_sequence
@@ -93,6 +109,19 @@ def find_path(start, end, path=[]):
         new_path.append(next)
         
         return find_path(next, end, new_path);
+
+class EntityMonad(object):
+    def __init__(self, entities=[]):
+        self.entities = entities
+    
+    def __getattr__(self, name):
+        def f(*args, **kwargs):
+            for entity in self.entities:
+                method = getattr(entity, name, None)
+                if method:
+                    method(*args, **kwargs)
+            return self
+        return f
 
 class Entity(object):
     main_class = None
@@ -162,12 +191,21 @@ class Entity(object):
         self._changes = []
         
         return output
+    
+    def has_class(self, selected_class):
+        return selected_class in set([self.main_class]).union(self.other_classes)
+    
+    def update(self, world):
+        pass
+    
+    def receive(self, message):
+        print '%s received %s' % (self.id, repr(message))
 
 class Pc(Entity):
     main_class = 'monkey'
     other_classes = ['facing-left']
     starting_sprite = 'walk'
-
+    
     
 class Npc(Entity):
     main_class = 'large-monkey'
@@ -262,13 +300,10 @@ class GameConnection(WebSocketHandler):
         self.write_message(publisher.world.to_dict())
 
     def on_message(self, message):
-        print 'Received: %s' % message
-        
         data = json.loads(message)
         
-        if data['type'] == 'moved':
-            new_position = Position(data['x'], data['y'])
-            World.instance().entities[data['id']].moved(new_position)
+        world = World.instance()
+        world[data['selector']].receive(data)
 
     def on_close(self):
         publisher = Publisher.instance()
