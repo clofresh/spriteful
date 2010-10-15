@@ -60,27 +60,6 @@ var spriteful = {
     },    
   },
   
-
-    
-  move_action: function(ref, node) {
-    var $this = $(ref);
-    logger.debug(_.template('#<%= id %> is moving to [<%= row %>, <%= col %>]', {
-      id: $this.attr('id'),
-      row: node.data('row'),
-      col: node.data('col')
-    }));
-    $this.orientTowards(node).advanceAnimation();
-
-    var cloned = $this.detach();
-
-    $(cloned)
-      .data('row',        node.data('row'))
-      .data('col',        node.data('col'));
-    
-    $(node).append(cloned);
-    
-  },
-  
   parse_sprite_image: function(img_url) {
     var parsed = $.url.setUrl(img_url).attr("file").split('.');
     var dimensions = parsed[2].split('-');
@@ -166,7 +145,6 @@ var spriteful = {
       .data('animations', animations)
       .data('row', $this.data('row'))
       .data('col', $this.data('col'))
-      .data('move_func', spriteful.move_action)
       .data('sprites', options.sprites)
       .addClass(options.starting_sprite)
       .bind('spriteful:move', function(evt, message) {
@@ -175,7 +153,7 @@ var spriteful = {
           x: message.position[0], 
           y: message.position[1]
         }));
-        $target.intentions([function() { $target.data('move_func')($target, dest) }]);
+        $target.intentions([function() { $target.move(dest) }]);
       })
       .bind('spriteful:bitten', function(evt, message) {
         var $this = $(this);
@@ -209,6 +187,27 @@ var spriteful = {
           target_selector.data('col')
         ]
       })
+    })
+  };
+  
+  $.fn.move = function(node) {
+    $node = $(node);
+    $(this).each(function() {
+      var $this = $(this);
+      logger.debug(_.template('#<%= id %> is moving to [<%= row %>, <%= col %>]', {
+        id: $this.attr('id'),
+        row: node.data('row'),
+        col: node.data('col')
+      }));
+      $this.orientTowards(node).advanceAnimation();
+
+      var cloned = $this.detach();
+
+      $(cloned)
+        .data('row',        node.data('row'))
+        .data('col',        node.data('col'));
+    
+      $node.append(cloned);
     })
   };
   
