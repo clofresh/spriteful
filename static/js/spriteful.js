@@ -10,31 +10,32 @@ var spriteful = {
       return this._connection.send(str_message);
     },
     
-    connect: function() {
+    connect: function(main_el, init_block) {
       this._connection = new WebSocket("ws://localhost:8888/connect");
     
       // The bind makes sure that "this" in the init function
       // refers to the websocket object, not the WebSocket object.
       // Wow, yeah that's confusing.
-      this._connection.onmessage = _.bind(this.init, this); 
+      this._connection.onmessage = _.bind(this.init, this, main_el, init_block); 
     
       return this._connection;
     },
   
-    init: function(evt) {
+    init: function(el, init_block, evt) {
       var config = JSON.parse(evt.data)
       logger.info("Initializing Spriteful: ");
       logger.info(config);
-    
-      $("#content").spriteful(config)
-                   .delegate('.' + config.tile_class, 'click', function() {
-                     $(".player").intentMove($(this));
-                   })
-                   .delegate('.player', 'spriteful:bite', function(evt, message) {
-                     $(this).bite();
-                   });
-      $('.' + config.tile_class).addClass('grass');
-    
+      
+      $(el).data('config', config)
+           .addClass('_controller')
+           .initTiles(config)
+           .initClock('.' + config.actor_class, config.heartbeat_interval)
+           .delegate('.' + config.tile_class, 'spriteful:new', function(evt, message) {
+             $(this).placeSprite(message);
+           })
+      
+      _.bind(init_block, $(el))(config);
+      
       _.each(config.entities, function(entity) {
         var dest = _.template("#cell-<%= x %>-<%= y %>", {
           x: entity.position[0], 
@@ -102,14 +103,8 @@ var spriteful = {
 
 
 (function($) {
-  $.fn.spriteful = function(config) {
-    return $(this).data('config', config)
-           .addClass('_controller')
-           .initTiles(config)
-           .initClock('.' + config.actor_class, config.heartbeat_interval)
-           .delegate('.' + config.tile_class, 'spriteful:new', function(evt, message) {
-              $(this).placeSprite(message);
-           });
+  $.fn.spriteful = function(init_block) {
+    spriteful.connection.connect(this, init_block);
   };
   
   $.fn.spritefulConfig = function() {

@@ -10,8 +10,20 @@
 
 <script>
   $(function() {
-    spriteful.connection.connect();
+    $("#content").spriteful(function(config) {
     
+      $(this)
+        .delegate('.' + config.tile_class, 'click', function() {
+          $(".player").intentMove($(this));
+        })
+        .delegate('.player', 'spriteful:bite', function(evt, message) {
+          $(this).bite();
+        });
+           
+      $('.' + config.tile_class).addClass('grass');
+    
+    });
+        
     $(document).keypress(function(event) {
       if (event.which == 32) {
        $(".player").intentBite();
