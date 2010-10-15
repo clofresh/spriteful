@@ -10,10 +10,16 @@
 
 <script>
   var ws = new WebSocket("ws://localhost:8888/connect");
-    
+  
+  WebSocket.prototype.send_message = function(message) {
+    var str_message = JSON.stringify(message);
+    logger.debug(str_message); 
+    return this.send(str_message);
+  }
+  
   $(function() {
     logger.configure({verbosity: "debug"});
-    
+  
     var loop = function(evt) {
       var changes = JSON.parse(evt.data).changes;
       _.each(changes, function(message) {
@@ -32,7 +38,11 @@
       logger.info("Initializing Spriteful: ");
       logger.info(config);
       
-      $("#content").spriteful(config);
+      $("#content").spriteful(config).delegate('.' + config.tile_class, 'click', 
+        function() {
+          $(".player").intentMove($(this));
+        }
+      );
       $('.' + config.tile_class).addClass('grass');
       
       _.each(config.entities, function(entity) {

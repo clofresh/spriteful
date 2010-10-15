@@ -97,7 +97,7 @@ var spriteful = {
 
 (function($) {
   $.fn.spriteful = function(config) {
-    $(this).data('config', config)
+    return $(this).data('config', config)
            .addClass('_controller')
            .initTiles(config)
            .initClock('.' + config.actor_class, config.heartbeat_interval)
@@ -176,6 +176,19 @@ var spriteful = {
       var sel = _.template('.<%= _tile_class %>.row-<%= row %>.col-<%= col %>', o);
       return $(sel);
     }));        
+  };
+  
+  $.fn.intentMove = function(target_selector) {
+    return $(this).each(function() {
+      ws.send_message({
+        selector: '#' + $(this).attr('id'),
+        type: 'move',
+        position: [
+          target_selector.data('row'), 
+          target_selector.data('col')
+        ]
+      })
+    })
   };
   
   $.fn.moveTo = function(end_selector) {

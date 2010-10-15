@@ -215,7 +215,7 @@ class Entity(object):
 
 class Pc(Entity):
     main_class = 'monkey'
-    other_classes = ['facing-left']
+    other_classes = ['facing-left', 'player']
     starting_sprite = 'walk'
     
     def receive(self, message):
