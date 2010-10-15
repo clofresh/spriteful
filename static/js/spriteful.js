@@ -1,40 +1,7 @@
 var spriteful = {  
   loaded_sprites: {},
-  
-  find_path: function(start, end, path) {
-    // Eventually implement this as A*
-
-    logger.debug(_.template('Finding path from (<%= start.row %>, <%= start.col %>) to (<%= end.row %>,<%= end.col %>)', 
-      {
-        start: start,
-        end: end
-      }
-    ));
-  
-    var equals = function(a, b) { return (a.row == b.row && a.col == b.col) };
-    var new_path = path;
-  
-    if (equals(start, end)) {
-      new_path.push(end);
-      return path;
-    } else {
-      var step = {row:0, col: 0};
-      if (end.row > start.row)      { step.row += 1 } 
-      else if (end.row < start.row) { step.row -= 1 }
-      if (end.col > start.col)      { step.col += 1 }
-      else if (end.col < start.col) { step.col -= 1 }
-
-      next = {
-        row: start.row + step.row,
-        col: start.col + step.col
-      };
+  websocket: null,
     
-      new_path.push(start);
-    
-      return spriteful.find_path(next, end, new_path);
-    }
-  },
-  
   move_action: function(ref, node) {
     var $this = $(ref);
     logger.debug(_.template('#<%= id %> is moving to [<%= row %>, <%= col %>]', {
@@ -172,33 +139,9 @@ var spriteful = {
     return $this;
   }
   
-  $.fn.pathTo = function(end_selector) {
-    var $this = $(this);
-    var $dest = $(end_selector);
-    
-    var start = {
-      row: $this.data('row'),
-      col: $this.data('col'),
-    };
-    
-    var end = {
-      row: $dest.data('row'),
-      col: $dest.data('col')
-    }
-  
-    var path = spriteful.find_path(start, end, []);
-    var config = $this.spritefulConfig();
-    
-    return $(_(path).map(function(o) {
-      o._tile_class = config.tile_class;
-      var sel = _.template('.<%= _tile_class %>.row-<%= row %>.col-<%= col %>', o);
-      return $(sel);
-    }));        
-  };
-  
   $.fn.intentMove = function(target_selector) {
     return $(this).each(function() {
-      ws.send_message({
+      spriteful.websocket.send_message({
         selector: '#' + $(this).attr('id'),
         type: 'move',
         position: [
@@ -206,16 +149,6 @@ var spriteful = {
           target_selector.data('col')
         ]
       })
-    })
-  };
-  
-  $.fn.moveTo = function(end_selector) {
-    return $(this).each(function() {
-      var $this = $(this);
-      var move_func = $this.data('move_func');
-      $this.intentions(_($this.pathTo(end_selector)).map(function(node) {
-        return function() { move_func($this, node) };
-      }));
     })
   };
   
@@ -246,7 +179,7 @@ var spriteful = {
   
   $.fn.intentBite = function() {
     return $(this).each(function() {
-      ws.send_message({
+      spriteful.websocket.send_message({
         selector: '#' + $(this).attr('id'),
         type: 'bite'
       })
