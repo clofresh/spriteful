@@ -4,6 +4,54 @@ from random import randint
 
 from .util import Position, Dimensions, Rectangle
 
+class Behavior(object):
+    pass
+
+class CanMove(Behavior):
+    def intent_move(self, target):
+        if target != self.position:
+            path = find_path(self.position, target, [])
+            print path
+            self.intentions = [
+                functools.partial(self.__class__.move, self, p)
+                for p in path
+            ]
+    
+    def move(self, position, world):
+        self.position = position
+        self._changes.append({
+            'selector': "#%s" % self.id,
+            'type': 'move', 
+            'position': tuple(position)
+        })
+    
+    def receive_move(self, message):
+        self.intent_move(Position(*message['position']))
+    
+class CanBite(Behavior):
+    def intent_bite(self):
+        self.intentions.append(functools.partial(self.__class__.bite, self))
+    
+    def bite(self, world):
+        collisions = [
+            c for c in world.intersect(Rectangle(self.position, Dimensions(3, 3)))
+            if c is not self
+        ]
+        
+        self._changes.append({
+            'selector': '#%s' % self.id,
+            'type': 'bite'
+        })
+        
+        for entity in collisions:
+            self._changes.append({
+                'selector': '#%s' % entity.id,
+                'type': 'bitten'
+            })
+    
+    def receive_bite(self, message):
+        self.intent_bite()
+
 class Entity(object):
     ''' Base class for any game object. 
     '''
@@ -47,23 +95,6 @@ class Entity(object):
     def set_id(self, id_number):
         self.id = '%s-%d' % (self.main_class, id_number)
 
-    def intent_move(self, target):
-        if target != self.position:
-            path = find_path(self.position, target, [])
-            print path
-            self.intentions = [
-                functools.partial(self.__class__.move, self, p)
-                for p in path
-            ]
-    
-    def move(self, position, world):
-        self.position = position
-        self._changes.append({
-            'selector': "#%s" % self.id,
-            'type': 'move', 
-            'position': tuple(position)
-        })
-    
     def to_dict(self):
         return {
             'selector':"#%s" % self.id,
@@ -97,41 +128,18 @@ class Entity(object):
     
     def receive(self, message):
         print '%s received %s' % (self.id, repr(message))
+        
+        method = getattr(self, 'receive_%s' % message[u'type'], None)
+        if method:
+            method(message)
+        
 
-class Pc(Entity):
+class Pc(Entity, CanMove, CanBite):
     main_class = 'monkey'
     other_classes = ['facing-left', 'player']
     starting_sprite = 'walk'
     
-    def intent_bite(self):
-        self.intentions.append(functools.partial(self.__class__.bite, self))
-    
-    def bite(self, world):
-        collisions = [
-            c for c in world.intersect(Rectangle(self.position, Dimensions(3, 3)))
-            if c is not self
-        ]
-        
-        self._changes.append({
-            'selector': '#%s' % self.id,
-            'type': 'bite'
-        })
-        
-        for entity in collisions:
-            self._changes.append({
-                'selector': '#%s' % entity.id,
-                'type': 'bitten'
-            })
-    
-    def receive(self, message):
-        super(self.__class__, self).receive(message)
-
-        if message[u'type'] == u'move':
-            self.intent_move(Position(*message['position']))
-        elif message[u'type'] == u'bite':
-            self.intent_bite()
-    
-class Npc(Entity):
+class Npc(Entity, CanMove):
     main_class = 'large-monkey'
     other_classes = ['facing-left']
     starting_sprite = 'walk'
