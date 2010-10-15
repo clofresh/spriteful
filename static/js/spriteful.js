@@ -226,6 +226,15 @@ var spriteful = {
     return $(this);
   };
   
+  $.fn.intentBite = function() {
+    return $(this).each(function() {
+      ws.send_message({
+        selector: '#' + $(this).attr('id'),
+        type: 'bite'
+      })
+    })    
+  };
+  
   $.fn.bite = function() {
     $(this).each(function() {
       var $this = $(this);

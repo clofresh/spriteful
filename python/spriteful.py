@@ -23,7 +23,7 @@ class World(object):
     def instance(cls):
         if cls.world is None:
             world = cls(cls.rows, cls.cols)
-            for i in range(5):
+            for i in range(3):
                 world.add(Npc.default(world.random_position()))
             world.add(Pc.default(world.random_position()))
             cls.world = world
@@ -225,11 +225,22 @@ class Pc(Entity):
     other_classes = ['facing-left', 'player']
     starting_sprite = 'walk'
     
+    def intent_bite(self):
+        self.intentions.append(functools.partial(self.__class__.bite, self))
+    
+    def bite(self):
+        self._changes.append({
+            'selector': '#%s' % self.id,
+            'type': 'bite'
+        })
+    
     def receive(self, message):
         super(self.__class__, self).receive(message)
 
         if message[u'type'] == u'move':
             self.intent_move(Position(*message['position']))
+        elif message[u'type'] == u'bite':
+            self.intent_bite()
     
 class Npc(Entity):
     main_class = 'large-monkey'

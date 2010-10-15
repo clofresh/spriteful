@@ -38,11 +38,13 @@
       logger.info("Initializing Spriteful: ");
       logger.info(config);
       
-      $("#content").spriteful(config).delegate('.' + config.tile_class, 'click', 
-        function() {
-          $(".player").intentMove($(this));
-        }
-      );
+      $("#content").spriteful(config)
+                   .delegate('.' + config.tile_class, 'click', function() {
+                     $(".player").intentMove($(this));
+                   })
+                   .delegate('.player', 'spriteful:bite', function(evt, message) {
+                     $(this).bite();
+                   });
       $('.' + config.tile_class).addClass('grass');
       
       _.each(config.entities, function(entity) {
@@ -58,6 +60,12 @@
     
     ws.onmessage = init;
 
+    $(document).keypress(function(event) {
+      if (event.which == 32) {
+       $(".player").intentBite();
+       event.preventDefault();
+      }
+    });
 
   })
 </script>
