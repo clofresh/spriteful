@@ -204,63 +204,7 @@ var spriteful = {
     
     return $(this);
   };
-  
-  $.fn.intentBite = function() {
-    return $(this).each(function() {
-      spriteful.connection.send_message({
-        selector: '#' + $(this).attr('id'),
-        type: 'bite'
-      })
-    })    
-  };
-  
-  $.fn.bite = function() {
-    $(this).each(function() {
-      var $this = $(this);
-      $this.animation('bite'); 
-      if ($this.hasClass('facing-right')) {
-        $this.intentions([
-          function() { 
-            $this.css('left', '2px')
-                 .css('top', '2px')
-                 .advanceAnimation()
-          },
-          function() { 
-            $this.css('left', '3px')
-                 .css('top', '3px')
-                 .advanceAnimation() 
-          },
-          function() {
-            $this.css('position', 'relative')
-                 .css('left', '0px')
-                 .css('top', '0px')
-                 .animation('walk');
-          },
-        ]);
-      } else {
-        $this.intentions([
-          function() { 
-            $this.css('left', '-2px')
-                 .css('top', '-2px')
-                 .advanceAnimation()
-          },
-          function() { 
-            $this.css('left', '-3px')
-                 .css('top', '-3px')
-                 .advanceAnimation() 
-          },
-          function() {
-            $this.css('position', 'relative')
-                 .css('left', '0px')
-                 .css('top', '0px')
-                 .animation('walk');
-          },
-        ]);
-      }
-    })
-    return $(this);
-  };
-  
+    
   $.fn.orientTowards = function(target_selector) {
     var $this = $(this);
     var $target = $(target_selector);

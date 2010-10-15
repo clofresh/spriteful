@@ -7,57 +7,11 @@
 <script src="js/underscore-0.6.0.min.js"></script>
 <script src="js/logger.js"></script>
 <script src="js/spriteful.js"></script>
+<script src="js/monkey.js"></script>
 
 <script>
   $(function() {
-    $("#content").spriteful(function(config) {
-    
-      $(this)
-        .delegate('.' + config.tile_class, 'click', function() {
-          $(".player").intentMove($(this));
-        })
-        .delegate('.player', 'spriteful:bite', function(evt, message) {
-          $(this).bite();
-        })
-        .delegate('.' + config.actor_class, 'spriteful:move', function(evt, message) {
-          var $target = $(this);
-          var dest = $(_.template("#cell-<%= x %>-<%= y %>", {
-            x: message.position[0], 
-            y: message.position[1]
-          }));
-          $target.intentions([function() { $target.move(dest) }]);
-        })
-        .delegate('.' + config.actor_class, 'spriteful:bitten', function(evt, message) {
-          var $this = $(this);
-          $this.intentions([
-            function() { 
-              $this.css('left', '2px')
-                   .css('top', '2px')
-            },
-            function() { 
-              $this.css('left', '3px')
-                   .css('top', '3px')
-            },
-            function() {
-              $this.css('position', 'relative')
-                   .css('left', '0px')
-                   .css('top', '0px')
-            },
-          ]);        
-        });
-      
-                 
-      $('.' + config.tile_class).addClass('grass');
-    
-    });
-        
-    $(document).keypress(function(event) {
-      if (event.which == 32) {
-       $(".player").intentBite();
-       event.preventDefault();
-      }
-    });
-
+    monkey.init();
   })
 </script>
 </head>
