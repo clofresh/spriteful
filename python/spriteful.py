@@ -223,7 +223,7 @@ class WorldHandler(RequestHandler):
         world = World.instance()
         self.write(world.to_dict())
 
-class NpcHandler(RequestHandler):
+class EntityHandler(RequestHandler):
     def get(self):
         world = World.instance()
         id = self.get_argument('id')
@@ -237,13 +237,15 @@ class NpcHandler(RequestHandler):
     def post(self):
         world = World.instance()
         
+        entity_type = self.get_argument('type')
         x = int(self.get_argument('x'))
         y = int(self.get_argument('y'))
         
-        npc = Npc.default(Position(x, y))
+        entity_class = eval(entity_type)
+        npc = entity_class.default(Position(x, y))
         id = world.add(npc)
         
-        self.redirect(self.reverse_url('Npc', id=id))
+        self.redirect(self.reverse_url('Entity', id=id))
     
     def delete(self):
         world = World.instance()
@@ -280,7 +282,7 @@ def main():
 
     urls = [
         URLSpec(r'/world', WorldHandler, name='World'),
-        URLSpec(r'/npc', NpcHandler, name='Npc'),
+        URLSpec(r'/entity', EntityHandler, name='Entity'),
         URLSpec(r'/connect', GameConnection, name='Connection'),
     ]
 
