@@ -6,4 +6,13 @@ The goal is to provide a powerful web-based game engine using idiomatic jQuery s
 
 Spriteful is heavily inspired by [Paul Bakaus's talk on the Aves Engine](http://www.youtube.com/watch?v=_RRnyChxijA).
 
-To view an example, open static/index.html in a modern browser (preferably Chrome).
+Dependencies:
+
+* [Tornado](http://tornadoweb.org/)
+* [Chrome](http://www.google.com/chrome/)
+
+To run:
+
+    python python/spriteful.py
+
+Then go to [http://localhost:8888/static/index.html](http://localhost:8888/static/index.html) in a modern browser like Chrome.
