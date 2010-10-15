@@ -142,32 +142,6 @@ var spriteful = {
       .data('col', $this.data('col'))
       .data('sprites', options.sprites)
       .addClass(options.starting_sprite)
-      .bind('spriteful:move', function(evt, message) {
-        var $target = $(this);
-        var dest = $(_.template("#cell-<%= x %>-<%= y %>", {
-          x: message.position[0], 
-          y: message.position[1]
-        }));
-        $target.intentions([function() { $target.move(dest) }]);
-      })
-      .bind('spriteful:bitten', function(evt, message) {
-        var $this = $(this);
-        $this.intentions([
-          function() { 
-            $this.css('left', '2px')
-                 .css('top', '2px')
-          },
-          function() { 
-            $this.css('left', '3px')
-                 .css('top', '3px')
-          },
-          function() {
-            $this.css('position', 'relative')
-                 .css('left', '0px')
-                 .css('top', '0px')
-          },
-        ]);        
-      });
     
     return $this;
   }
