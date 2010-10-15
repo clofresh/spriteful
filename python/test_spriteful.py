@@ -1,5 +1,5 @@
 from unittest import TestCase, main
-from spriteful import EntityMonad
+from spriteful import EntityMonad, Rectangle, Position, Dimensions
 
 class TestEntityMonad(TestCase):
     def setUp(self):
@@ -23,6 +23,17 @@ class TestEntityMonad(TestCase):
         
         self.case4.sort(reverse=True)
         self.assertEquals(self.case4.entities, ['mixed', (1, 2), [3, 2, 1]])
+
+class TestRectange(TestCase):
+    def setUp(self):
+        self.rectangle = Rectangle(Position(0, 0), Dimensions(3, 4))
+        self.within = sorted([Position(0, 0), Position(3, 0), Position(1, 1)])
+        self.without = sorted([Position(-1, -1), Position(4, 0), Position(1, 5)])
+        self.all = sorted(self.within + self.without)
+    
+    def test(self):
+        found = sorted([p for p in self.all if p in self.rectangle])
+        self.assertEquals(found, self.within)
 
 if __name__ == '__main__':
     main()

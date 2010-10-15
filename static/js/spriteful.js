@@ -149,6 +149,24 @@ var spriteful = {
           y: message.position[1]
         }));
         $target.intentions([function() { $target.data('move_func')($target, dest) }]);
+      })
+      .bind('spriteful:bitten', function(evt, message) {
+        var $this = $(this);
+        $this.intentions([
+          function() { 
+            $this.css('left', '2px')
+                 .css('top', '2px')
+          },
+          function() { 
+            $this.css('left', '3px')
+                 .css('top', '3px')
+          },
+          function() {
+            $this.css('position', 'relative')
+                 .css('left', '0px')
+                 .css('top', '0px')
+          },
+        ]);        
       });
     
     return $this;

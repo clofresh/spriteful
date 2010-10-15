@@ -13,7 +13,22 @@ from tornado.websocket import WebSocketHandler
 class Position(namedtuple('Position', 'x y')):
     def __repr__(self):
         return '(%s, %s)' % (self.x, self.y)
+
+class Dimensions(namedtuple('Dimensions', 'w h')):
+    def __repr__(self):
+        return '(%s, %s)' % (self.w, self.h)
+
+class Rectangle(namedtuple('Rectangle', 'position dimensions')):
+    def __repr__(self):
+        return '(%s, %s)' % (self.position, self.dimensions)
     
+    def __contains__(self, position):
+        return self.position.x <= position.x <= self.position.x + self.dimensions.w  \
+                 and                                                                 \
+               self.position.y <= position.y <= self.position.y + self.dimensions.h
+    
+
+
 class World(object):
     world = None
     rows = 40
@@ -51,6 +66,10 @@ class World(object):
                     entities.append(entity)
                 
         return EntityMonad(entities)
+    
+    def intersect(self, rectangle):
+        return [entity for entity in self.entities.values()
+                if entity.position in rectangle]
     
     def add(self, entity):
         new_id = self.id_sequence
@@ -179,7 +198,7 @@ class Entity(object):
                 for p in path
             ]
     
-    def move(self, position):
+    def move(self, position, world):
         self.position = position
         self._changes.append({
             'selector': "#%s" % self.id,
@@ -214,7 +233,7 @@ class Entity(object):
     def update(self, world):
         if len(self.intentions) > 0:
             intent = self.intentions[0]
-            intent()
+            intent(world)
             self.intentions = self.intentions[1:]
     
     def receive(self, message):
@@ -228,11 +247,22 @@ class Pc(Entity):
     def intent_bite(self):
         self.intentions.append(functools.partial(self.__class__.bite, self))
     
-    def bite(self):
+    def bite(self, world):
+        collisions = [
+            c for c in world.intersect(Rectangle(self.position, Dimensions(3, 3)))
+            if c is not self
+        ]
+        
         self._changes.append({
             'selector': '#%s' % self.id,
             'type': 'bite'
         })
+        
+        for entity in collisions:
+            self._changes.append({
+                'selector': '#%s' % entity.id,
+                'type': 'bitten'
+            })
     
     def receive(self, message):
         super(self.__class__, self).receive(message)
@@ -249,7 +279,8 @@ class Npc(Entity):
     
     def update(self, world):
         if not self.intentions:
-            self.intent_move(world.random_position())
+            if randint(0, 100) == 1:
+                self.intent_move(world.random_position())
         else:
             super(self.__class__, self).update(world)
     
