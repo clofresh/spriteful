@@ -13,6 +13,6 @@ Dependencies:
 
 To run:
 
-    python python/spriteful.py
+    PYTHONPATH=$(pwd)/python ./bin/spriteful
 
 Then go to [http://localhost:8888/static/index.html](http://localhost:8888/static/index.html) in a modern browser like Chrome.
