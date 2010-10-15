@@ -9,6 +9,28 @@ from . import entity as entityModule
 from .io import World, Publisher
 from .util import Position
 
+class CssHandler(RequestHandler):
+    def get(self):
+        board_selector = self.get_argument('board_id')
+        
+        world_data = World.instance().to_dict()
+        board_width = world_data['board']['tile_width'] * world_data['board']['cols']
+        board_height = world_data['board']['tile_height'] * world_data['board']['rows']
+        tile_class = world_data['tile_class']
+        tile_width = world_data['board']['tile_width']
+        tile_height = world_data['board']['tile_height']
+        sprite_class = world_data['sprite_class']
+        
+        self.render('spriteful.css', 
+            board_selector=board_selector,
+            board_width=board_width,
+            board_height=board_height,
+            tile_class=tile_class,
+            tile_width=tile_width,
+            tile_height=tile_height,
+            sprite_class=sprite_class
+        )
+
 class WorldHandler(RequestHandler):
     def get(self):
         world = World.instance()
@@ -71,6 +93,7 @@ class GameConnection(WebSocketHandler):
 def main():
     settings = {
         'static_path':   'static',
+        'template_path': 'template',
         'debug':         True
     }
 
@@ -78,6 +101,7 @@ def main():
         URLSpec(r'/world', WorldHandler, name='World'),
         URLSpec(r'/entity', EntityHandler, name='Entity'),
         URLSpec(r'/connect', GameConnection, name='Connection'),
+        URLSpec(r'/css/spriteful.css', CssHandler, name='Stylesheet'),
     ]
 
     application = Application(urls, **settings)
