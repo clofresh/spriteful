@@ -5,6 +5,9 @@ from random import randint
 from .util import Position, Dimensions, Rectangle
 
 class Entity(object):
+    ''' Base class for any game object. 
+    '''
+    
     main_class = None
     other_classes = []
     starting_sprite = None
@@ -83,7 +86,8 @@ class Entity(object):
         return output
     
     def has_class(self, selected_class):
-        return selected_class in set([self.main_class]).union(self.other_classes)
+        all_classes = set([self.main_class]).union(self.other_classes)
+        return selected_class in all_classes
     
     def update(self, world):
         if len(self.intentions) > 0:
@@ -141,6 +145,11 @@ class Npc(Entity):
 
 
 def find_path(start, end, path=[]):
+    ''' Recursive function that calculates the path between two Positions.
+        Right now it assumes there are no obstructions. Once obstructions 
+        are allowed, this should implement the A* algorithm.
+    '''
+    
     new_path = path
     if start == end:
         new_path.append(end)

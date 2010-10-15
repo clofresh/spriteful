@@ -15,6 +15,9 @@ class WorldHandler(RequestHandler):
         self.write(world.to_dict())
 
 class EntityHandler(RequestHandler):
+    ''' CRUD Entities in the world
+    '''
+    
     def get(self):
         world = World.instance()
         id = self.get_argument('id')
@@ -47,6 +50,9 @@ class EntityHandler(RequestHandler):
             raise HTTPError(404)
 
 class GameConnection(WebSocketHandler):
+    ''' Allows clients to subscribe to changes in the world via WebSocket
+    '''
+    
     def open(self):
         publisher = Publisher.instance()
         publisher.subscribe(self)
