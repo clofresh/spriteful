@@ -1,5 +1,6 @@
 from unittest import TestCase, main
-from spriteful import EntityMonad, Rectangle, Position, Dimensions
+from spriteful.io import EntityMonad
+from spriteful.util import Rectangle, Position, Dimensions
 
 class TestEntityMonad(TestCase):
     def setUp(self):
