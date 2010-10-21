@@ -12,6 +12,7 @@ from . import entity as entityModule
 from .io import World, Publisher
 from .util import Position
 
+url_namespace = 'spriteful'
 
 class ClientHandler(RequestHandler):
     def get(self):
@@ -41,13 +42,15 @@ class CssSpritefulHandler(RequestHandler):
 
 class CssSpritesHandler(RequestHandler):
     def get(self):
+        global url_namespace
+        
         sprites = []
         for full_filename in glob('static/img/sprites/*.gif'):
             filename = os.path.basename(full_filename)
             
             type, animation, dimensions, extention = filename.split('.')
             width, height, frames = dimensions.split('-')
-            url = '/spriteful/' + full_filename
+            url = '/%s/%s' % (url_namespace, full_filename)
             
             sprites.append((
                 type,
@@ -123,21 +126,26 @@ class GameConnection(WebSocketHandler):
         publisher.unsubscribe(self)
 
 def main():
+    global url_namespace
+    
     settings = {
         'static_path':       'static',
-        'static_url_prefix': '/spriteful/static/',
+        'static_url_prefix': '/%s/static/' % url_namespace,
         'template_path':     'template',
         'debug':             True
     }
-
-    urls = [
-        URLSpec(r'/spriteful/', ClientHandler, name='Client'),
-        URLSpec(r'/spriteful/world', WorldHandler, name='World'),
-        URLSpec(r'/spriteful/entity', EntityHandler, name='Entity'),
-        URLSpec(r'/spriteful/connect', GameConnection, name='Connection'),
-        URLSpec(r'/spriteful/css/spriteful.css', CssSpritefulHandler, name='SpritefulStylesheet'),
-        URLSpec(r'/spriteful/css/sprites.css', CssSpritesHandler, name='SpritesStylesheet'),
+    
+    url_mappings = [
+        ('/', ClientHandler, 'Client'),
+        ('/world', WorldHandler, 'World'),
+        ('/entity', EntityHandler, 'Entity'),
+        ('/connect', GameConnection, 'Connection'),
+        ('/css/spriteful.css', CssSpritefulHandler, 'SpritefulStylesheet'),
+        ('/css/sprites.css', CssSpritesHandler, 'SpritesStylesheet'),
     ]
+    
+    urls = [URLSpec('/%s%s' % (url_namespace, url), handler, name=name)
+            for url, handler, name in url_mappings]
 
     application = Application(urls, **settings)
     
