@@ -14,7 +14,7 @@ from .util import Position
 
 class ClientHandler(RequestHandler):
     def get(self):
-        self.redirect('/spriteful/static/index.html')
+        self.render('index.html')
         
 class CssSpritefulHandler(RequestHandler):
     def get(self):

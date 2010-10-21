@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>Spriteful</title>
+  
+<link rel="stylesheet" 
+      href="{{reverse_url('SpritefulStylesheet')}}?board_id=content" 
+      type="text/css" 
+      media="screen" /> 
+<link rel="stylesheet" 
+      href="{{reverse_url('SpritesStylesheet')}}" 
+      type="text/css" 
+      media="screen" /> 
+<link rel="stylesheet" 
+      href="{{static_url('css/monkey.css')}}" 
+      type="text/css" 
+      media="screen" /> 
+
+<script src="{{static_url('js/jquery-1.4.2.min.js')}}"></script>
+<script src="{{static_url('js/jquery.url-bb2bf.js')}}"></script>
+<script src="{{static_url('js/underscore-0.6.0.min.js')}}"></script>
+<script src="{{static_url('js/logger.js')}}"></script>
+<script src="{{static_url('js/spriteful.js')}}"></script>
+<script src="{{static_url('js/monkey.js')}}"></script>
+
+<script>
+  $(function() {
+    monkey.init();
+  })
+</script>
+</head>
+<body>
+  <ul>
+    <li>Click on the board to move</li>
+    <li>Press space to bite</li>
+  </ul>
+  <div id="content"></div>
+</body>
+</html>
