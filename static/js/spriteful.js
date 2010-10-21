@@ -11,7 +11,7 @@ var spriteful = {
     },
     
     connect: function(main_el, init_block) {
-      this._connection = new WebSocket("ws://localhost:8888/connect");
+      this._connection = new WebSocket("ws://localhost:8888/spriteful/connect");
     
       // The bind makes sure that "this" in the init function
       // refers to the websocket object, not the WebSocket object.

@@ -11,6 +11,11 @@ from . import entity as entityModule
 from .io import World, Publisher
 from .util import Position
 
+
+class ClientHandler(RequestHandler):
+    def get(self):
+        self.redirect('/spriteful/static/index.html')
+        
 class CssSpritefulHandler(RequestHandler):
     def get(self):
         board_selector = self.get_argument('board_id')
@@ -41,7 +46,7 @@ class CssSpritesHandler(RequestHandler):
             
             type, animation, dimensions, extention = filename.split('.')
             width, height, frames = dimensions.split('-')
-            url = '/' + full_filename
+            url = '/spriteful/' + full_filename
             
             sprites.append((
                 type,
@@ -115,17 +120,19 @@ class GameConnection(WebSocketHandler):
 
 def main():
     settings = {
-        'static_path':   'static',
-        'template_path': 'template',
-        'debug':         True
+        'static_path':       'static',
+        'static_url_prefix': '/spriteful/static/',
+        'template_path':     'template',
+        'debug':             True
     }
 
     urls = [
-        URLSpec(r'/world', WorldHandler, name='World'),
-        URLSpec(r'/entity', EntityHandler, name='Entity'),
-        URLSpec(r'/connect', GameConnection, name='Connection'),
-        URLSpec(r'/css/spriteful.css', CssSpritefulHandler, name='SpritefulStylesheet'),
-        URLSpec(r'/css/sprites.css', CssSpritesHandler, name='SpritesStylesheet'),
+        URLSpec(r'/spriteful/', ClientHandler, name='Client'),
+        URLSpec(r'/spriteful/world', WorldHandler, name='World'),
+        URLSpec(r'/spriteful/entity', EntityHandler, name='Entity'),
+        URLSpec(r'/spriteful/connect', GameConnection, name='Connection'),
+        URLSpec(r'/spriteful/css/spriteful.css', CssSpritefulHandler, name='SpritefulStylesheet'),
+        URLSpec(r'/spriteful/css/sprites.css', CssSpritesHandler, name='SpritesStylesheet'),
     ]
 
     application = Application(urls, **settings)
