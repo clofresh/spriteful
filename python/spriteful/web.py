@@ -1,6 +1,7 @@
 import json
 import os
 from glob import glob
+from urllib import urlencode
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -89,7 +90,10 @@ class EntityHandler(RequestHandler):
         e = entity_class.default(Position(x, y))
         id = world.add(e)
         
-        self.redirect(self.reverse_url('Entity', id=id))
+        self.redirect('%s?%s' % (
+            self.reverse_url('Entity'),
+            urlencode({'id': id})
+        ))
     
     def delete(self):
         world = World.instance()
