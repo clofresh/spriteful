@@ -1,15 +1,15 @@
 var monkey = {
   init: function() {
     $("#content").spriteful(function(config) {
-    
+      var actor_selector = '.' + config.actor_class;
       $(this)
         .delegate('.' + config.tile_class, 'click', function() {
-          $(".player").intentMove($(this));
+          $.player().intentMove($(this));
         })
-        .delegate('.player', 'spriteful:bite', function(evt, message) {
+        .delegate(actor_selector, 'spriteful:bite', function(evt, message) {
           $(this).bite();
         })
-        .delegate('.' + config.actor_class, 'spriteful:move', function(evt, message) {
+        .delegate(actor_selector, 'spriteful:move', function(evt, message) {
           var $target = $(this);
           var dest = $(_.template("#cell-<%= x %>-<%= y %>", {
             x: message.position[0], 
@@ -17,7 +17,7 @@ var monkey = {
           }));
           $target.intentions([function() { $target.move(dest) }]);
         })
-        .delegate('.' + config.actor_class, 'spriteful:bitten', function(evt, message) {
+        .delegate(actor_selector, 'spriteful:bitten', function(evt, message) {
           var $this = $(this);
           $this.intentions([
             function() { 
@@ -43,7 +43,7 @@ var monkey = {
         
     $(document).keypress(function(event) {
       if (event.which == 32) {
-       $(".player").intentBite();
+       $.player().intentBite();
        event.preventDefault();
       }
     });    
@@ -108,4 +108,13 @@ var monkey = {
     return $(this);
   };
   
-})(jQuery)
+})(jQuery);
+
+jQuery.player_selector = function() {
+  return $.cookie('player_selector');
+};
+
+jQuery.player = function() {
+  return $($.player_selector());
+}
+

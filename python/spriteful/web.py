@@ -10,7 +10,6 @@ from tornado.websocket import WebSocketHandler
 
 from . import entity as entityModule
 from .io import World, Publisher
-from .util import Position
 
 url_namespace = 'spriteful'
 
@@ -90,9 +89,16 @@ class EntityHandler(RequestHandler):
         y = int(self.get_argument('y'))
         
         entity_class = getattr(entityModule, entity_type)
-        e = entity_class.default(Position(x, y))
+        args = {}
+        for key, vals in self.request.arguments.items():
+            if len(vals) == 1:
+                args[str(key)] = vals[0]
+            else:
+                args[str(key)] = vals
+                
+        e = entity_class.default(**args)
         id = world.add(e)
-        
+        self.set_cookie('player_selector', '#%s' % id)
         self.redirect('%s?%s' % (
             self.reverse_url('Entity'),
             urlencode({'id': id})

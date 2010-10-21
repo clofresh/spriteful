@@ -16,12 +16,13 @@
       media="screen" /> 
 
 <script src="{{static_url('js/jquery-1.4.2.min.js')}}"></script>
-<script src="{{static_url('js/jquery.url-bb2bf.js')}}"></script>
 <script src="{{static_url('js/underscore-0.6.0.min.js')}}"></script>
+<script src="{{static_url('js/jquery.url-bb2bf.js')}}"></script>
+<script src="{{static_url('js/jquery.cookie-6818b.js')}}"></script>
+<script src="{{static_url('js/jquery.form-2.49.js')}}"></script>
 <script src="{{static_url('js/logger.js')}}"></script>
 <script src="{{static_url('js/spriteful.js')}}"></script>
 <script src="{{static_url('js/monkey.js')}}"></script>
-<script src="{{static_url('js/jquery.form-2.49.js')}}"></script>
 
 <script>
   $(function() {
@@ -40,7 +41,9 @@
     <input type="hidden" name="type" value="Pc" />
     <input type="hidden" name="x" value="0" />
     <input type="hidden" name="y" value="0" />
-    <input type="submit" />
+    <label for="join-name">Name: </label>
+    <input id="join-name" name="name" />
+    <input type="submit" value="Join" />
   </form>
   
 </body>

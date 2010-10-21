@@ -2,6 +2,7 @@ from glob import glob
 from random import randint
 
 from . import behavior
+from ..util import Position
 
 class Entity(object):
     ''' Base class for any game object. 
@@ -20,15 +21,18 @@ class Entity(object):
         return sprites
     
     @classmethod
-    def default(cls, position):
+    def default(cls, x, y, **properties):
+        position = Position(int(x), int(y))
+
         return cls(
             position,
             cls.main_class,
             cls.other_classes,
-            cls.starting_sprite
+            cls.starting_sprite,
+            **properties
         )
 
-    def __init__(self, position, main_class, other_classes, starting_sprite):
+    def __init__(self, position, main_class, other_classes, starting_sprite, **properties):
         self.position = position
         self.main_class = main_class
         self.other_classes = other_classes
@@ -38,6 +42,7 @@ class Entity(object):
         self.id = None
         self.intentions = []
         self._changes = []
+        self.properties = properties
         
 
     def __repr__(self):
