@@ -19,7 +19,6 @@ class World(object):
             world = cls(cls.rows, cls.cols)
             for i in range(3):
                 world.add(Npc.default(world.random_position()))
-            world.add(Pc.default(world.random_position()))
             cls.world = world
         
         return cls.world

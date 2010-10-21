@@ -21,10 +21,12 @@
 <script src="{{static_url('js/logger.js')}}"></script>
 <script src="{{static_url('js/spriteful.js')}}"></script>
 <script src="{{static_url('js/monkey.js')}}"></script>
+<script src="{{static_url('js/jquery.form-2.49.js')}}"></script>
 
 <script>
   $(function() {
     monkey.init();
+    $('form.join').ajaxForm();
   })
 </script>
 </head>
@@ -34,5 +36,19 @@
     <li>Press space to bite</li>
   </ul>
   <div id="content"></div>
+  <form class="join" method="post" action="{{reverse_url('Entity')}}">
+    <input type="hidden" name="type" value="Pc" />
+    <input type="hidden" name="x" value="0" />
+    <input type="hidden" name="y" value="0" />
+    <input type="submit" />
+  </form>
+  
 </body>
 </html>
+
+
+
+
+
+
+
