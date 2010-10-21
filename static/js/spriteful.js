@@ -11,7 +11,19 @@ var spriteful = {
     },
     
     connect: function(main_el, init_block) {
-      this._connection = new WebSocket("ws://localhost:8888/spriteful/connect");
+      var url_vars = {
+        hostname: window.location.hostname,
+        port: window.location.port
+      };
+      var connection_url;
+      
+      if (url_vars.port) {
+        connection_url = _.template("ws://<%= hostname %>:<%= port %>/spriteful/connect", url_vars);
+      } else {
+        connection_url = _.template("ws://<%= hostname %>/spriteful/connect", url_vars);
+      }
+      
+      this._connection = new WebSocket(connection_url);
     
       // The bind makes sure that "this" in the init function
       // refers to the websocket object, not the WebSocket object.
